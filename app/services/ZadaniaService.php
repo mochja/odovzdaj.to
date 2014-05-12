@@ -72,11 +72,13 @@ class ZadaniaService
         $triedyIds = array_map(function ($v){ return (int)$v['trieda_id']; }, $zadania);
         $zadaniaIds = array_map(function ($v){ return (int)$v['id']; }, $zadania);
 
+        // pocet ludi v triede
         $stmt = $this->db->executeQuery("SELECT trieda_id, COUNT(*) AS pocet_ziakov FROM pouzivatelia WHERE trieda_id IN(?) GROUP BY trieda_id",
             array($triedyIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
         $triedy = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $triedy = array_combine( array_map(function ($v){ return (int)$v['trieda_id']; }, $triedy) , $triedy);
 
+        // pocet odovzdanych k zadaniu
         $stmt = $this->db->executeQuery("SELECT zadanie_id, trieda_id, COUNT(*) AS pocet_ziakov FROM odovzdania AS o
             LEFT JOIN zadania AS z ON o.zadanie_id = z.id
             WHERE z.trieda_id IN(?) AND o.zadanie_id IN(?) GROUP BY o.zadanie_id",

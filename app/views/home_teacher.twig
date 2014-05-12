@@ -15,7 +15,7 @@
                 <th>trieda</th>
                 <th>stav</th>
                 <th>trva do</th>
-                <th>po termine</th>
+                <th>ostava</th>
             </tr>
         </thead>
         <tbody>
@@ -26,7 +26,7 @@
                 <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
                 <td>{{ zadanie.odovzdanych }}</td>
                 <td>{{ zadanie.cas_uzatvorenia }}</td>
-                <td><!-- TODO: --></td>
+                <td><span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span></td>
             </tr>
             {% endfor %}
         </tbody>
