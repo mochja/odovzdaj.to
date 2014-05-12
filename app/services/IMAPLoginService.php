@@ -21,7 +21,7 @@ class IMAPLoginService
         
         if (!$imap) {
             return FALSE;
-        } else if ($user = $this->db->fetchAssoc("SELECT p.id, p.meno, t.rocnik, t.kod, p.trieda_id FROM pouzivatelia AS p LEFT JOIN triedy AS t ON p.trieda_id = t.id WHERE p.login = ?", array($username))) {
+        } else if ($user = $this->db->fetchAssoc("SELECT p.id, p.meno, p.role, t.rocnik, t.kod, p.trieda_id FROM pouzivatelia AS p LEFT JOIN triedy AS t ON p.trieda_id = t.id WHERE p.login = ?", array($username))) {
             return $user;
         } else {
             return FALSE;

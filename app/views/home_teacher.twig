@@ -1,0 +1,35 @@
+{% set title = 'Vitaaaj ty Panko' %}
+{% extends "layout.twig" %}
+
+{% block content %}
+    Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }}
+    <a href="{{ path('logout') }}">Odhlasit sa</a>
+
+    <h1>Otvorene terminy</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nazov terminu</th>
+                <th>predmet</th>
+                <th>trieda</th>
+                <th>stav</th>
+                <th>trva do</th>
+                <th>po termine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zadanie in zadania %}
+            <tr>
+                <td>{{ zadanie.nazov }}</td>
+                <td>{{ zadanie.predmet }}</td>
+                <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
+                <td>{{ zadanie.odovzdanych }}</td>
+                <td>{{ zadanie.cas_uzatvorenia }}</td>
+                <td><!-- TODO: --></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

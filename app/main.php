@@ -61,11 +61,21 @@ $checkUser = function ($request) use ($app) {
 
 $app->get('/', function () use ($app) {
     $user = $app['session']->get('user');
-    
-    $zadania = $app['zadania_service']->getAll();
-    $ukonceneZadania = $app['zadania_service']->getAll(TRUE);
 
-    return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
+    // Pre studenta zobrazime len shit
+    if ($user['role'] == 1)
+    {
+        $zadania = $app['zadania_service']->getAll();
+        $ukonceneZadania = $app['zadania_service']->getAll(TRUE);
+
+        return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
+    }
+    else if ($user['role'] == 2) // pre ucitela viac shitov
+    {
+        $zadania = $app['zadania_service']->getAllForTeacher();
+        return $app['twig']->render('home_teacher.twig', compact('zadania'));
+    }
+    
 })->before($checkUser)        
 ->bind('home');
 
