@@ -12,6 +12,8 @@
         <link href="{{ path('home') }}css/style.css" rel="stylesheet" />
         <style>
             .flash-info { color: green }
+            .sql-log { font-family: 'Lucida Console', monospace; font-size: 12px; background: #fff; border-collapse: collapse; margin: 10px; border: 2px solid gray; }
+            .sql-log td, .sql-log th { border: 1px solid gray; padding: 3px; vertical-align: top;}
         </style>
     </head>
     <body>
@@ -21,6 +23,24 @@
     {% endfor %}
 {% endfor %}
 {% block content %}{% endblock %}
+    {% if logger.queries %}
+    <table class="sql-log">
+        <thead>
+            <th>SQL - {{ logger.queries|length }} query</th>
+            <th>Params</th>
+            <th nowrap>Time (ms)</th>
+        </thead>
+        <tbody>
+        {% for log in logger.queries %}
+            <tr>
+                <td>{{ log.sql }}</td>
+                <td>{% for p in log.params %}{{ p|join(',') }}{% endfor %}</td>
+                <td>{{ log.executionMS|round(3, 'floor') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
     <script>
         moment.lang('sk');
         $(function () {

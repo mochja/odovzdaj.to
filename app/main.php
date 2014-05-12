@@ -3,6 +3,7 @@
 date_default_timezone_set('Europe/Bratislava');
 
 include __DIR__.'/services/IMAPLoginService.php';
+include __DIR__.'/services/ZadaniaService.php';
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use SPE\FilesizeExtensionBundle\Twig\FilesizeExtension;
@@ -25,16 +26,25 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     ),
 ));
 
+$logger = new Doctrine\DBAL\Logging\DebugStack();
+$app['db.config']->setSQLLogger($logger);
+
 $app['login_service'] = $app->share(function () use ($app) {
     return new IMAPLoginService($app['db']);
+});
+
+$app['zadania_service'] = $app->share(function () use ($app) {
+    return new ZadaniaService($app['db'], $app['session']);
 });
 
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
 ));
 
-$app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
+$app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($logger) {
+    $twig->addGlobal('logger', $logger);
     $twig->addGlobal('user', $app['session']->get('user'));
+
     $twig->addExtension(new FilesizeExtension());
     $twig->addFilter('rome', new Twig_SimpleFilter('rome', function ($val) { 
         return $val < 4 ? str_repeat('I', $val) : 'IV';        
@@ -49,43 +59,13 @@ $checkUser = function ($request) use ($app) {
     }
 };
 
-//$app['session']->set('user', NULL);
-
 $app->get('/', function () use ($app) {
     $user = $app['session']->get('user');
     
-    $zadania = $app['db']->fetchAll("SELECT z.id, z.nazov, z.cas_uzatvorenia, p.skratka AS predmet FROM zadania AS z "
-            . "LEFT JOIN predmety AS p ON z.predmet_id = p.id "
-            . "WHERE z.trieda_id = ? AND ( z.stav = 2 OR ( z.stav = 1 AND NOW() <= z.cas_uzatvorenia ) )"
-            . "ORDER BY z.cas_uzatvorenia DESC", array($user['trieda_id']));
+    $zadania = $app['zadania_service']->getAll();
+    $ukonceneZadania = $app['zadania_service']->getAll(TRUE);
 
-    $zadaniaIds = array_map(function ($v){ return (int)$v['id']; }, $zadania);
-
-    $stmt = $app['db']->executeQuery("SELECT id, zadanie_id, poznamka, cas_odovzdania, cas_upravenia FROM odovzdania WHERE zadanie_id IN (?)", 
-        array($zadaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
-    $odovzdania = $stmt->fetchAll();
-    $odovzdaniaIds = array_map(function ($v){ return (int)$v['id']; }, $odovzdania);
-
-    $stmt = $app['db']->executeQuery("SELECT id, odovzdanie_id, nazov, velkost, cesta, cas_odovzdania, cas_upravenia FROM subory WHERE odovzdanie_id IN (?)", 
-        array($odovzdaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
-    $subory = $stmt->fetchAll();
-
-    foreach ($zadania as &$zadanie) {
-        $zadanie['subory'] = array();
-        foreach ($odovzdania as $o) {
-            if ($o['zadanie_id'] == $zadanie['id']) {
-                $zadanie['odovzdanie'] = $o;
-                foreach ($subory as $s) {
-                    if ($o['id'] == $s['odovzdanie_id']) {
-                        $zadanie['subory'][] = $s;
-                    }
-                }
-            } // xDDD
-        }
-    }
-    unset($zadanie); // !!!!
-    
-    return $app['twig']->render('home_student.twig', compact('zadania'));
+    return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
 })->before($checkUser)        
 ->bind('home');
 
@@ -135,7 +115,6 @@ $app->post('/upload', function () use ($app) {
             }
 
             $subor = $app['db']->fetchAssoc("SELECT id, cesta FROM subory WHERE odovzdanie_id = ? AND nazov = ? LIMIT 1", array($odovzdanie['id'], $_FILES['upl']['name']));
-
             if ($subor) {
                 rename(__DIR__.'/uploads/'.$newPath, __DIR__.'/uploads/'.$subor['cesta']); // premazeme stary subor novym
                 $app['db']->executeQuery("UPDATE subory SET cas_upravenia = NOW() WHERE id = ?", array($subor['id']));
@@ -162,7 +141,6 @@ $app->post('/odovzdaj', function () use ($app) {
     $user = $app['session']->get('user');
 
     $zadanie = $app['db']->fetchAssoc("SELECT id FROM zadania WHERE id = ? AND trieda_id = ? AND ( stav = 2 OR ( stav = 1 AND NOW() <= cas_uzatvorenia ) ) LIMIT 1", array($zadanieId, $user['trieda_id']));
-
     if (!$zadanie) {
         throw new Exception('Neexistujuce zadanie.');
     }

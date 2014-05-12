@@ -44,6 +44,32 @@
         </div>
     {% endfor %}
 
+    <h2>uzatvorene terminy</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nazov terminu</th>
+                <th>predmet</th>
+                <th>Trvanie</th>
+                <th>subory</th>
+                <th>poznamka</th>
+                <th>po termine</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zadanie in ukonceneZadania %}
+            <tr>
+                <td>{{ zadanie.nazov }}</td>
+                <td>{{ zadanie.predmet }}</td>
+                <td>{{ zadanie.cas_uzatvorenia }}</td>
+                <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
+                <td>{{ zadanie.odovzdanie.poznamka }}</td>
+                <td><!-- TODO: --></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}
 
 {% block script %}
