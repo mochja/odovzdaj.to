@@ -1,0 +1,15 @@
+{
+	"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/loonkwil/filesize-extension-bundle.git"
+    }
+],
+    "require": {
+        "silex/silex": "~1.2",
+        "doctrine/dbal": "2.2.*",
+        "twig/twig": ">=1.8,<2.0-dev",
+         "spe/filesize-extension-bundle": "dev-master",
+        "symfony/twig-bridge": "~2.3"
+    }
+}

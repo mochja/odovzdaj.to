@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+        <script src="{{ path('home') }}js/jquery-1.11.1.min.js"></script>
+        <script src="{{ path('home') }}js/moment.min.js"></script>
+        <script src="{{ path('home') }}js/moment.sk.js"></script>
+
+        <!-- Google web fonts -->
+        <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
+
+        <!-- The main CSS file -->
+        <link href="{{ path('home') }}css/style.css" rel="stylesheet" />
+        <style>
+            .flash-info { color: green }
+        </style>
+    </head>
+    <body>
+{% for type, messages in app.session.getFlashBag.all() %}
+    {% for message in messages %}
+        <div class="flash-{{ type }}">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+{% block content %}{% endblock %}
+    <script>
+        moment.lang('sk');
+        $(function () {
+            var timestamps = $('span[data-timestamp]');
+            
+            var updateTime = function () {
+                timestamps.each(function () {
+                    $this = $(this);
+                    // TODO: Ak uz skoncilo treba zmenit..
+                    var str = 'ostava ' + moment.duration( -moment().diff( moment($this.data('timestamp')) ) ).humanize();
+                    if ( $this.html() !== str ) {
+                        $this.html( str );
+                    }
+                });
+            };
+            
+            updateTime();
+            setInterval( updateTime, 1000 );
+        });
+    </script>
+    {% block script %}{% endblock %}
+    </body>
+</html>

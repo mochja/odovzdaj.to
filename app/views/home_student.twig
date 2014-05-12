@@ -1,0 +1,67 @@
+{% set title = 'Vitaaaj' %}
+{% extends "layout.twig" %}
+
+{% block content %}
+    <h1>Otvorene terminy</h1>
+    Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }} <a href="{{ path('logout') }}">Odhlasit sa</a>
+    
+    <hr>
+    
+    {% for zadanie in zadania %}
+        <div class="zadanie" id="zadanie-{{ zadanie.id }}">
+            <h3>{{ zadanie.nazov }}</h3>{{ zadanie.predmet }}
+
+            <span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span>
+            
+            <form class="upload" method="post" action="{{ path('upload') }}" enctype="multipart/form-data">
+                <div class="drop">
+                    Drop Here
+    
+                    <a>Browse</a>
+                    <input type="file" name="upl" multiple />
+                </div>
+    
+                <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+    
+                <ul>
+                    <!-- The file uploads will be shown here -->
+                    {% for subor in zadanie.subory %}
+                        <li class="static-file">
+                            <input type="text" value="100" data-width="48" data-height="48" data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" />
+                            <p>{{ subor.nazov }}<i>{{ subor.velkost|readable_filesize }}</i></p><span></span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </form>
+
+            <form action="{{ path('odovzdaj') }}" method="post">
+                <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+                <textarea name="poznamka" cols="30" rows="10">{%if zadanie.odovzdanie.poznamka is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</textarea>
+                <input type="submit">
+            </form>
+
+            termin otvoreny do {{ zadanie.cas_uzatvorenia|date('d.m.Y H:i') }}
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block script %}
+<script src="{{ path('home') }}js/jquery.knob.js"></script>
+
+<!-- jQuery File Upload Dependencies -->
+<script src="{{ path('home') }}js/jquery.ui.widget.js"></script>
+<script src="{{ path('home') }}js/jquery.iframe-transport.js"></script>
+<script src="{{ path('home') }}js/jquery.fileupload.js"></script>
+
+<!-- Our main JS file -->
+<script src="{{ path('home') }}js/script.js"></script>
+<script>
+    $(function () {
+        $('li.static-file > input').knob();
+        $('li.static-file > span').on('click', function () {
+            // TODO: zmaznout file
+        });
+    });
+</script>
+{% endblock %}
