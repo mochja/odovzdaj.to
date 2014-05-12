@@ -19,7 +19,7 @@ class ZadaniaService
 
         $zadania = $this->db->fetchAll("SELECT z.id, z.nazov, z.cas_uzatvorenia, p.skratka AS predmet FROM zadania AS z "
                 . "LEFT JOIN predmety AS p ON z.predmet_id = p.id "
-                . "WHERE z.trieda_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() ".($uzatvorene ? '>' : '<=')." z.cas_uzatvorenia ) )"
+                . "WHERE z.trieda_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() ".($uzatvorene ? '>' : '<=')." z.cas_uzatvorenia ) ) "
                 . "ORDER BY z.cas_uzatvorenia DESC", array($user['trieda_id'], $uzatvorene ? 0 : 2));
 
         if ( empty($zadania) ) {
@@ -34,7 +34,7 @@ class ZadaniaService
         $odovzdania = $stmt->fetchAll();
         $odovzdaniaIds = array_map(function ($v){ return (int)$v['id']; }, $odovzdania);
     
-        if ( emtpy($odovzdania) ) {
+        if ( empty($odovzdania) ) {
             $subory = array();
         } else {
             $stmt = $this->db->executeQuery("SELECT id, odovzdanie_id, nazov, velkost, cesta, cas_odovzdania, cas_upravenia FROM subory WHERE odovzdanie_id IN (?)", 

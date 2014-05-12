@@ -28,14 +28,14 @@
         <thead>
             <th>SQL - {{ logger.queries|length }} query</th>
             <th>Params</th>
-            <th nowrap>Time (ms)</th>
+            <th nowrap>Time (&micro;s)</th>
         </thead>
         <tbody>
         {% for log in logger.queries %}
             <tr>
                 <td>{{ log.sql }}</td>
-                <td>{% for p in log.params %}{{ p|join(',') }}{% endfor %}</td>
-                <td>{{ log.executionMS|round(3, 'floor') }}</td>
+                <td>{% for p in log.params %}[{{ p|join(', ') }}]{% if not loop.last %}, {% endif %}{% endfor %}</td>
+                <td>{{ (log.executionMS*1000)|round(3, 'floor') }}</td>
             </tr>
         {% endfor %}
         </tbody>
