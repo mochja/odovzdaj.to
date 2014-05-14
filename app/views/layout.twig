@@ -1,6 +1,7 @@
 <html>
     <head>
         <title>{{ title }}</title>
+        <script src="{{ path('home') }}js/bootstrap.min.js"></script>
         <script src="{{ path('home') }}js/jquery-1.11.1.min.js"></script>
         <script src="{{ path('home') }}js/moment.min.js"></script>
         <script src="{{ path('home') }}js/moment.sk.js"></script>
@@ -9,12 +10,9 @@
         <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel='stylesheet' />
 
         <!-- The main CSS file -->
+        <link rel="stylesheet" href="{{ path('home') }}css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ path('home') }}css/bootstrap-theme.min.css">
         <link href="{{ path('home') }}css/style.css" rel="stylesheet" />
-        <style>
-            .flash-info { color: green }
-            .sql-log { font-family: 'Lucida Console', monospace; font-size: 12px; background: #fff; border-collapse: collapse; margin: 10px; border: 2px solid gray; }
-            .sql-log td, .sql-log th { border: 1px solid gray; padding: 3px; vertical-align: top;}
-        </style>
     </head>
     <body>
 {% for type, messages in app.session.getFlashBag.all() %}
@@ -23,6 +21,9 @@
     {% endfor %}
 {% endfor %}
 {% block content %}{% endblock %}
+    
+    <!--  
+    
     {% if logger.queries %}
     <table class="sql-log">
         <thead>
@@ -41,6 +42,9 @@
         </tbody>
     </table>
     {% endif %}
+    
+    -->
+    
     <script>
         moment.lang('sk');
         $(function () {

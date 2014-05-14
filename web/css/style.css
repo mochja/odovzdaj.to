@@ -1,47 +1,10 @@
-/*-------------------------
-    Simple reset
---------------------------*/
+/*----------------------------
+    Styles
+-----------------------------*/
 
-
-*{
-    margin:0;
-    padding:0;
-}
-
-
-/*-------------------------
-    General Styles
---------------------------*/
-
-
-html{
-    background-color:#ebebec;
-
-    background-image:-webkit-radial-gradient(center, #ebebec, #b4b4b4);
-    background-image:-moz-radial-gradient(center, #ebebec, #b4b4b4);
-    background-image:radial-gradient(center, #ebebec, #b4b4b4);
-
-    min-height:900px;
-}
-
-body{
-    font:15px/1.3 Arial, sans-serif;
-    color: #4f4f4f;
-}
-
-a, a:visited {
-    outline:none;
-    color:#389dc1;
-}
-
-a:hover{
-    text-decoration:none;
-}
-
-section, footer, header, aside{
-    display: block;
-}
-
+.flash-info { color: green }
+.sql-log { font-family: 'Lucida Console', monospace; font-size: 12px; background: #fff; border-collapse: collapse; margin: 10px; border: 2px solid gray; }
+.sql-log td, .sql-log th { border: 1px solid gray; padding: 3px; vertical-align: top;}
 
 /*----------------------------
     The file upload form
