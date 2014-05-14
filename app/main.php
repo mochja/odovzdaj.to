@@ -20,10 +20,10 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
         'driver'   => 'pdo_mysql',
-        'dbname'     => 'dlugosko',
-        'host' => '127.0.0.1',
+        'dbname'     => 'odovzdajto',
+        'host' => 'localhost',
         'username' => 'root',
-        'password' => '',
+        'password' => 'root',
         'charset' => 'utf8'
     ),
 ));

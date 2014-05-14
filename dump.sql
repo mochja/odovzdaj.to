@@ -90,7 +90,7 @@ CREATE TABLE `zadania` (
   `predmet_id` int(10) unsigned NOT NULL,
   `stav` tinyint(3) unsigned DEFAULT '0' COMMENT '0 - uzatvorene; 1 - otvorene; 2 - otvorene aj po uzavierke',
   `cas_uzatvorenia` datetime NOT NULL,
-  `cas_vytvorenia` datetime DEFAULT CURRENT_TIMESTAMP,
+  `cas_vytvorenia` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `trieda_id` (`trieda_id`),
   KEY `predmet_id` (`predmet_id`),
