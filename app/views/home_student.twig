@@ -63,7 +63,7 @@
                 <td>{{ zadanie.predmet }}</td>
                 <td>{{ zadanie.cas_uzatvorenia }}</td>
                 <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
-                <td>{{ zadanie.odovzdanie.poznamka }}</td>
+                <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
                 <td><!-- TODO: --></td>
             </tr>
             {% endfor %}
