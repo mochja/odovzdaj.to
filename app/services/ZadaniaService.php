@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * TODO: rename to ZadanieRepository ;)
+ */
 class ZadaniaService
 {
 
@@ -92,6 +95,40 @@ class ZadaniaService
         }
 
         return $zadania;
+    }
+    
+    public function getFileList($zadanieId)
+    {
+        return $this->db->fetchAll("SELECT s.nazov, s.cesta, p.login FROM subory AS s"
+                . " LEFT JOIN odovzdania AS o ON s.odovzdanie_id = o.id"
+                . " LEFT JOIN zadania AS z ON o.zadanie_id = z.id"
+                . " LEFT JOIN pouzivatelia AS p ON o.pouzivatel_id = p.id"
+                . " WHERE o.zadanie_id = ?", array($zadanieId));
+    }
+    
+    public function save(Zadanie $zadanie)
+    {
+        $zadanieData = array(
+            'nazov' => $zadanie->getNazov(),
+            'trieda_id' => $zadanie->getTriedaId(),
+            'pouzivatel_id' => $zadanie->getPouzivatelId(),
+            'predmet_id' => $zadanie->getPredmetId(),
+            'stav' => $zadanie->getStav(),
+            'cas_uzatvorenia' => $zadanie->getCasUzatvorenia()
+        );
+        
+        if ($zadanie->getId()) {
+            $this->db->update('zadania', $zadanieData, array('zadanie_id' => $zadanie->getId()));
+        } else {
+            $this->db->insert('zadania', $zadanieData, array(PDO::PARAM_STR, PDO::PARAM_INT, PDO::PARAM_INT, PDO::PARAM_INT, PDO::PARAM_INT, 'datetime'));
+            $id = $this->db->lastInsertId();
+            $zadanie->setId($id);
+        }
+    }
+    
+    public function delete($id)
+    {
+        return $this->db->delete('zadania', array('id' => $id));
     }
 
 }

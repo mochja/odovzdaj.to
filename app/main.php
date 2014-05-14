@@ -2,9 +2,6 @@
 
 date_default_timezone_set('Europe/Bratislava');
 
-include __DIR__.'/services/IMAPLoginService.php';
-include __DIR__.'/services/ZadaniaService.php';
-
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use SPE\FilesizeExtensionBundle\Twig\FilesizeExtension;
 
@@ -14,6 +11,11 @@ $app['debug']= true;
 
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
+$app->register(new Silex\Provider\FormServiceProvider());
+
+$app->register(new Silex\Provider\TranslationServiceProvider(), array(
+    'locale_fallbacks' => array('en'),
+));
 
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => array(
@@ -28,6 +30,14 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 
 $logger = new Doctrine\DBAL\Logging\DebugStack();
 $app['db.config']->setSQLLogger($logger);
+
+$app['repository.triedy'] = $app->share(function () use ($app) {
+    return new TriedyRepository($app['db'], $app['session']);
+});
+
+$app['repository.predmety'] = $app->share(function () use ($app) {
+    return new PredmetyRepository($app['db'], $app['session']);
+});
 
 $app['login_service'] = $app->share(function () use ($app) {
     return new IMAPLoginService($app['db']);
@@ -72,8 +82,13 @@ $app->get('/', function () use ($app) {
     }
     else if ($user['role'] == 2) // pre ucitela viac shitov
     {
-        $zadania = $app['zadania_service']->getAllForTeacher();
-        return $app['twig']->render('home_teacher.twig', compact('zadania'));
+        $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), new Zadanie());
+        
+        return $app['twig']->render('home_teacher.twig', array(
+            'zadaniaZatvorene' => $app['zadania_service']->getAllForTeacher(TRUE),
+            'zadania' => $app['zadania_service']->getAllForTeacher(), 
+            'form' => $form->createView()
+        ));
     }
     
 })->before($checkUser)        
@@ -194,3 +209,56 @@ $app->get('/login', function () use ($app) {
     
     return $app['twig']->render('login.twig');
 })->bind('login');
+
+
+/**
+ * Sekcia pre ucitelov
+ */
+
+$app->post('/zadanie/new', function (Symfony\Component\HttpFoundation\Request $request) use ($app) {
+    $user =  $app['session']->get('user');
+    
+    if ($user['role'] != 2) {
+        throw new Exception('Permission denied');
+    }
+    
+    $zadanie = new Zadanie();
+    $zadanie->setPouzivatelId( $user['id'] );
+    $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), $zadanie);
+    
+    $form->bind($request);
+    if ($form->isValid())
+    {
+        $app['zadania_service']->save( $zadanie );
+        $app['session']->getFlashBag()->add('success', 'Zadanie bolo pridane.');
+    }
+    
+    return new RedirectResponse( $app['url_generator']->generate('home') );
+})->before($checkUser)->bind('zadanie.new');
+
+$app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
+    $user =  $app['session']->get('user');
+    if ($user['role'] != 2) {
+        throw new Exception('Permission denied');
+    }
+    
+    $app['zadania_service']->delete($id);
+    return new RedirectResponse( $app['url_generator']->generate('home') );
+})->before($checkUser)->bind('zadanie.delete')->convert('id', function ($id) { return (int) $id; });
+
+
+$app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
+    error_reporting(0);
+    $filelist = $app['zadania_service']->getFileList($id);
+    
+    $stream = function () use ($filelist, $id) {
+        $zip = new ZipStream('zadanie_'.$id.'.zip');
+        foreach ($filelist as $subor)
+        {
+            $zip->add_file_from_path('zadanie_'.$id.'/'.$subor['login'].'/'.$subor['nazov'], __DIR__.'/uploads/'.$subor['cesta']);
+        }
+        $zip->finish();
+    };
+    
+    return $app->stream($stream, 200, array('Content-Type' => 'application/zip'));
+})->before($checkUser)->bind('zadanie.zip')->convert('id', function ($id) { return (int) $id; });

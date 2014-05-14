@@ -4,6 +4,11 @@
 {% block content %}
     Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }}
     <a href="{{ path('logout') }}">Odhlasit sa</a>
+    
+    
+    <form action="{{ path('zadanie.new') }}" method="post">
+            {{ form_widget(form) }}
+        </form>
 
     <h1>Otvorene terminy</h1>
 
@@ -20,6 +25,34 @@
         </thead>
         <tbody>
             {% for zadanie in zadania %}
+            <tr>
+                <td>{{ zadanie.nazov }}</td>
+                <td>{{ zadanie.predmet }}</td>
+                <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
+                <td>{{ zadanie.odovzdanych }}</td>
+                <td>{{ zadanie.cas_uzatvorenia }}</td>
+                <td><span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span></td>
+                <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}">a</a><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}">a</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        
+    <h1>Zatvorene terminy</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nazov terminu</th>
+                <th>predmet</th>
+                <th>trieda</th>
+                <th>stav</th>
+                <th>trva do</th>
+                <th>ostava</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zadanie in zadaniaZatvorene %}
             <tr>
                 <td>{{ zadanie.nazov }}</td>
                 <td>{{ zadanie.predmet }}</td>
