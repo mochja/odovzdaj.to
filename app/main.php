@@ -1,5 +1,7 @@
 <?php
 
+require __DIR__.'/config.php';
+
 date_default_timezone_set('Europe/Bratislava');
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,14 +20,7 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 ));
 
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
-    'db.options' => array(
-        'driver'   => 'pdo_mysql',
-        'dbname'     => 'odovzdajto',
-        'host' => 'localhost',
-        'username' => 'root',
-        'password' => 'root',
-        'charset' => 'utf8'
-    ),
+    'db.options' => $config['db'],
 ));
 
 $logger = new Doctrine\DBAL\Logging\DebugStack();

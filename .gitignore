@@ -1,6 +1,5 @@
 /vendor
 /nbproject
-composer.json
-composer.lock
 composer.phar
-app/main.php
+
+app/config.php
