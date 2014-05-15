@@ -96,7 +96,7 @@ $app->get('/goodbye', function () use ($app) {
 })->bind('logout');
 
 $app->post('/upload', function () use ($app) {
-    $allowed = array('png', 'jpg', 'gif','zip');
+    $allowed = array('png', 'jpg', 'zip', 'doc', 'docx', 'pdf', 'ppt', 'pptx', 'c', 'cpp');
     $user = $app['session']->get('user');
 
     if ( isset($_FILES['upl']) && $_FILES['upl']['error'] == 0 && isset($_POST['zadanie_id']) ) {
@@ -192,7 +192,7 @@ $app->post('/odovzdaj', function () use ($app) {
 ->bind('odovzdaj');
 
 $app->get('/login', function () use ($app) {
-    $user = $app['login_service']->auth('asdf', 'asdf');
+    $user = $app['login_service']->auth('marek', 'marek');
     
     if ( $user !== FALSE ) {
         $app['session']->set('user', $user);
