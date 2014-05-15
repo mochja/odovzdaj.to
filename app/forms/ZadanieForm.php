@@ -40,7 +40,9 @@ class ZadanieForm extends AbstractType
             ->add('po_uzavierke', 'checkbox', array(
                 'required' => false
             ))
-            ->add('save', 'submit');
+            ->add('Vytvorit termin', 'button', array(
+                'attr' => array('class' => 'btn btn-primary')
+            ));
     }
     
     public function getName()
