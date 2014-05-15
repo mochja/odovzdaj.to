@@ -11,8 +11,8 @@ class LoginForm extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('email', 'email', array(
-                'label' => 'E-mail'
+            ->add('login', 'text', array(
+                'label' => 'Login'
             ))
             ->add('password', 'password', array(
                 'label' => 'Heslo'

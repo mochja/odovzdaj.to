@@ -19,7 +19,9 @@
     "autoload": {
         "files": [
             "app/entities/Zadanie.php",
+            "app/entities/User.php",
             "app/forms/ZadanieForm.php",
+            "app/forms/LoginForm.php",
             "app/services/TriedyRepository.php",
             "app/services/PredmetyRepository.php",
             "app/services/IMAPLoginService.php",

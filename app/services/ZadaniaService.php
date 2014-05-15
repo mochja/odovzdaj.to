@@ -72,6 +72,10 @@ class ZadaniaService
                 . "WHERE z.pouzivatel_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() ".($uzatvorene ? '>' : '<=')." z.cas_uzatvorenia ) ) "
                 . "ORDER BY z.cas_uzatvorenia DESC", array($user['id'], $uzatvorene ? 0 : 2));
 
+        if (empty($zadania)) {
+            return array();
+        }
+
         $triedyIds = array_map(function ($v){ return (int)$v['trieda_id']; }, $zadania);
         $zadaniaIds = array_map(function ($v){ return (int)$v['id']; }, $zadania);
 

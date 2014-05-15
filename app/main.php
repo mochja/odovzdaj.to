@@ -192,18 +192,34 @@ $app->post('/odovzdaj', function () use ($app) {
 ->bind('odovzdaj');
 
 $app->get('/login', function () use ($app) {
-    $user = $app['login_service']->auth('marek', 'marek');
+    $user = new User();
+    $form = $app['form.factory']->create(new LoginForm(), $user);
     
-    if ( $user !== FALSE ) {
-        $app['session']->set('user', $user);
-        $app['session']->getFlashBag()->add('success', 'Vitaj spat '.$app->escape($user['meno']).'.');
-        return new RedirectResponse( $app['url_generator']->generate('home') ); 
-    } else {
-        // login failed
-    }
-    
-    return $app['twig']->render('login.twig');
+    return $app['twig']->render('login.twig', array('form' => $form->createView()));
 })->bind('login');
+
+$app->post('/login', function (Symfony\Component\HttpFoundation\Request $request) use ($app) {
+
+    $user = new User();
+    $form = $app['form.factory']->create(new LoginForm(), $user);
+    
+    $form->bind($request);
+    if ($form->isValid())
+    {
+        $loggedUser = $app['login_service']->auth( $user );
+        if ( $loggedUser !== FALSE )
+        {
+            $app['session']->set('user', $loggedUser);
+            $app['session']->getFlashBag()->add('success', 'Vitaj spat '.$app->escape($loggedUser['meno']).'.');
+            return new RedirectResponse( $app['url_generator']->generate('home') ); 
+        } else {
+            // login failed
+            return new RedirectResponse( $app['url_generator']->generate('login') ); 
+        }
+    }
+
+    return $app['twig']->render('login.twig', array('form' => $form->createView()));
+})->bind('login.process');
 
 
 /**
