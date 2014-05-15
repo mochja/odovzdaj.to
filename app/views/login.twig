@@ -3,10 +3,11 @@
 
 
 {% block content %}
+
 <h1>Login</h1>
-<form action="#">
-    <input type="email" />
-    <input type="password" />
-    <input type="submit" />
+
+<form action="{{ path('login.new') }}" method="post">
+    {{ form_widget(form) }}
 </form>
+
 {% endblock %}
