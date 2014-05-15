@@ -2,73 +2,95 @@
 {% extends "layout.twig" %}
 
 {% block content %}
-    <h1>Otvorene terminy</h1>
-    Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }} <a href="{{ path('logout') }}">Odhlasit sa</a>
     
-    <hr>
-    
-    {% for zadanie in zadania %}
-        <div class="zadanie" id="zadanie-{{ zadanie.id }}">
-            <h3>{{ zadanie.nazov }}</h3>{{ zadanie.predmet }}
-
-            <span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span>
-            
-            <form class="upload" method="post" action="{{ path('upload') }}" enctype="multipart/form-data">
-                <div class="drop">
-                    Drop Here
-    
-                    <a>Browse</a>
-                    <input type="file" name="upl" multiple />
-                </div>
-    
-                <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
-    
-                <ul>
-                    <!-- The file uploads will be shown here -->
-                    {% for subor in zadanie.subory %}
-                        <li class="static-file">
-                            <input type="text" value="100" data-width="48" data-height="48" data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" />
-                            <p>{{ subor.nazov }}<i>{{ subor.velkost|readable_filesize }}</i></p><span></span>
-                        </li>
-                    {% endfor %}
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Odovzdaj.to</a>
+            </div>
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Odovzdat</a></li>
+                    <li><a href="{{ path('logout') }}">Odhlasit sa</a></li>
                 </ul>
-            </form>
-
-            <form action="{{ path('odovzdaj') }}" method="post">
-                <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
-                <textarea name="poznamka" cols="30" rows="10">{%if zadanie.odovzdanie.poznamka is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</textarea>
-                <input type="submit">
-            </form>
-
-            termin otvoreny do {{ zadanie.cas_uzatvorenia|date('d.m.Y H:i') }}
+            </div>
         </div>
-    {% endfor %}
+    </div>
 
-    <h2>uzatvorene terminy</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Nazov terminu</th>
-                <th>predmet</th>
-                <th>Trvanie</th>
-                <th>subory</th>
-                <th>poznamka</th>
-                <th>po termine</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for zadanie in ukonceneZadania %}
-            <tr>
-                <td>{{ zadanie.nazov }}</td>
-                <td>{{ zadanie.predmet }}</td>
-                <td>{{ zadanie.cas_uzatvorenia }}</td>
-                <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
-                <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
-                <td><!-- TODO: --></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="container">
+        <h1>Otvorene terminy</h1>
+        <p class="lead">Vitaj {{ user.meno }}, {{ user.rocnik|rome }}. {{ user.kod }} <a href="{{ path('logout') }}">Odhlasit sa</a></p>
+    
+    
+        {% for zadanie in zadania %}
+            <div class="zadanie" id="zadanie-{{ zadanie.id }}">
+                <h3>{{ zadanie.nazov }}</h3>{{ zadanie.predmet }}
+
+                <span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span>
+
+                <form class="upload" method="post" action="{{ path('upload') }}" enctype="multipart/form-data">
+                    <div class="drop">
+                        Pretiahnite súbor(y) sem alebo ich nájdite
+
+                        <a>Prehľadávať</a>
+                        <input type="file" name="upl" multiple />
+                    </div>
+
+                    <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+
+                    <ul>
+                        {% for subor in zadanie.subory %}
+                            <li class="static-file">
+                                <input type="text" value="100" data-width="48" data-height="48" data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" />
+                                <p>{{ subor.nazov }}<i>{{ subor.velkost|readable_filesize }}</i></p><span></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </form>
+
+                <form action="{{ path('odovzdaj') }}" method="post">
+                    <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
+                    <textarea name="poznamka" cols="30" rows="10">{%if zadanie.odovzdanie.poznamka is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</textarea>
+                    <input type="submit">
+                </form>
+
+                termin otvoreny do {{ zadanie.cas_uzatvorenia|date('d.m.Y H:i') }}
+            </div>
+        {% endfor %}
+
+        <h2>uzatvorene terminy</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nazov terminu</th>
+                    <th>predmet</th>
+                    <th>Trvanie</th>
+                    <th>subory</th>
+                    <th>poznamka</th>
+                    <th>po termine</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zadanie in ukonceneZadania %}
+                <tr>
+                    <td>{{ zadanie.nazov }}</td>
+                    <td>{{ zadanie.predmet }}</td>
+                    <td>{{ zadanie.cas_uzatvorenia }}</td>
+                    <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
+                    <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
+                    <td><!-- TODO: --></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+    </div>
 
 {% endblock %}
 
