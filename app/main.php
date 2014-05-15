@@ -91,7 +91,7 @@ $app->get('/', function () use ($app) {
 
 $app->get('/goodbye', function () use ($app) {
     $app['session']->clear();
-    $app['session']->getFlashBag()->add('info', 'Bol si uspesne odhlaseny.');
+    $app['session']->getFlashBag()->add('success', 'Bol si uspesne odhlaseny.');
     return new RedirectResponse( $app['url_generator']->generate('login') );
 })->bind('logout');
 
@@ -186,7 +186,7 @@ $app->post('/odovzdaj', function () use ($app) {
         $app['db']->executeQuery("UPDATE odovzdania SET cas_upravenia = NOW(), poznamka = ? WHERE id = ?", array($_POST['poznamka'], $odovzdanie['id']));
     }
 
-    $app['session']->getFlashBag()->add('info', 'Tvoja odpoved bola zaznamenana.');
+    $app['session']->getFlashBag()->add('sucess', 'Tvoja odpoved bola zaznamenana.');
     return new RedirectResponse( $app['url_generator']->generate('home') ); 
 })->before($checkUser)
 ->bind('odovzdaj');
@@ -196,7 +196,7 @@ $app->get('/login', function () use ($app) {
     
     if ( $user !== FALSE ) {
         $app['session']->set('user', $user);
-        $app['session']->getFlashBag()->add('info', 'Vitaj spat '.$app->escape($user['meno']).'.');
+        $app['session']->getFlashBag()->add('success', 'Vitaj spat '.$app->escape($user['meno']).'.');
         return new RedirectResponse( $app['url_generator']->generate('home') ); 
     } else {
         // login failed

@@ -1,8 +1,18 @@
+.container {
+    width: 700px;
+}
+
+.name {
+    color: #999;
+    padding-top: 17px;
+    font-size: 12px;
+    margin-right: 40px;
+}
+
 /*----------------------------
-    Styles
+    SQL queries log
 -----------------------------*/
 
-.flash-info { color: green }
 .sql-log { font-family: 'Lucida Console', monospace; font-size: 12px; background: #fff; border-collapse: collapse; margin: 10px; border: 2px solid gray; }
 .sql-log td, .sql-log th { border: 1px solid gray; padding: 3px; vertical-align: top;}
 
