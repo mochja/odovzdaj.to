@@ -214,7 +214,7 @@ $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request
             return new RedirectResponse( $app['url_generator']->generate('home') ); 
         } else {
             // login failed
-            return new RedirectResponse( $app['url_generator']->generate('login') ); 
+            $app['session']->getFlashBag()->add('error', 'Ta daco nedobre.');
         }
     }
 
