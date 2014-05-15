@@ -9,6 +9,10 @@
     margin-right: 40px;
 }
 
+.zadanie {
+    border: 1px solid #d7d7d7;
+}
+
 /*----------------------------
     SQL queries log
 -----------------------------*/
@@ -29,7 +33,7 @@
     background-image:-moz-linear-gradient(top, #373a3d, #313437);
     background-image:linear-gradient(top, #373a3d, #313437);
 
-    width: 700px;
+    width: 640px;
     padding:30px;
     border-radius:3px;
 

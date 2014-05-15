@@ -57,7 +57,7 @@
                 <form action="{{ path('odovzdaj') }}" method="post">
                     <input type="hidden" value="{{ zadanie.id }}" name="zadanie_id">
                     <textarea name="poznamka" cols="30" rows="10">{%if zadanie.odovzdanie.poznamka is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</textarea>
-                    <input type="submit">
+                    <input type="submit" class="btn btn-primary">
                 </form>
 
                 termin otvoreny do {{ zadanie.cas_uzatvorenia|date('d.m.Y H:i') }}
@@ -65,7 +65,7 @@
         {% endfor %}
 
         <h2>uzatvorene terminy</h2>
-        <table>
+        <table class="table table-bordered table-hover">
             <thead>
                 <tr>
                     <th>Nazov terminu</th>
