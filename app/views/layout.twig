@@ -54,8 +54,8 @@
             var updateTime = function () {
                 timestamps.each(function () {
                     $this = $(this);
-                    // TODO: Ak uz skoncilo treba zmenit..
-                    var str = moment.duration( -moment().diff( moment($this.data('timestamp')) ) ).humanize();
+                    var duration = moment.duration( -moment().diff( moment($this.data('timestamp')) ) );
+                    var str = +duration < 0 ? '-': duration.humanize();
                     if ( $this.html() !== str ) {
                         $this.html( str );
                     }
