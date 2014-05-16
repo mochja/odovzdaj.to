@@ -17,7 +17,7 @@
 
     {% for type, messages in app.session.getFlashBag.all() %}
         {% for message in messages %}
-        <p class="bg-{{ type }} text-center msg">{{ message }}</p>
+        <p class="alert-{{ type }} text-center msg">{{ message }}</p>
         {% endfor %}
     {% endfor %}
 

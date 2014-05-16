@@ -78,6 +78,7 @@
                     <th>Trieda</th>
                     <th>Naplnenosť</th>
                     <th>Trval do</th>
+                    <th><!-- --></th>
                 </tr>
             </thead>
             <tbody>
@@ -88,6 +89,7 @@
                     <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
                     <td>{{ zadanie.odovzdanych }}</td>
                     <td>{{ zadanie.cas_uzatvorenia }}</td>
+                    <th><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-download"></i> Stiahnúť</a></th>
                 </tr>
                 {% endfor %}
             </tbody>
