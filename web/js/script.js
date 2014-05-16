@@ -1,4 +1,6 @@
 $(function(){
+    
+    $('#myModal').modal();
 
     $('.upload').each(function () {
         var ul = $('ul', this);

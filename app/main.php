@@ -210,11 +210,11 @@ $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request
         if ( $loggedUser !== FALSE )
         {
             $app['session']->set('user', $loggedUser);
-            $app['session']->getFlashBag()->add('success', 'Vitaj spat '.$app->escape($loggedUser['meno']).'.');
+            $app['session']->getFlashBag()->add('success', 'Vitaj späť '.$app->escape($loggedUser['meno']).'.');
             return new RedirectResponse( $app['url_generator']->generate('home') ); 
         } else {
             // login failed
-            $app['session']->getFlashBag()->add('error', 'Ta daco nedobre.');
+            $app['session']->getFlashBag()->add('error', 'Zadal si nespravne meno alebo heslo.');
         }
     }
 

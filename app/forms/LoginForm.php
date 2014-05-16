@@ -12,12 +12,16 @@ class LoginForm extends AbstractType
     {
         $builder
             ->add('login', 'text', array(
-                'label' => 'Login'
+                'label' => 'Meno',
+                'attr' => array('class' => 'form-control', 'placeholder' => 'Zadajte meno')
             ))
             ->add('password', 'password', array(
-                'label' => 'Heslo'
+                'label' => 'Heslo',
+                'attr' => array('class' => 'form-control')
             ))
-            ->add('save', 'submit');
+            ->add('Prihlásiť', 'submit', array(
+                'attr' => array('class' => 'btn btn-lg btn-primary form-control')
+            ));
     }
 
     public function getName()

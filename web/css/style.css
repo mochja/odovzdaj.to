@@ -1,5 +1,5 @@
 .container {
-    width: 700px;
+    width: 960px;
 }
 
 .name {
@@ -12,6 +12,28 @@
 .zadanie {
     border: 1px solid #d7d7d7;
 }
+
+.msg {
+    margin-bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d7d7d7;
+}
+
+.table { font-size: 14px; }
+
+#ZadanieForm div { margin-bottom: 20px; }
+#ZadanieForm_cas_uzatvorenia { margin-bottom: 0 !important; }
+#ZadanieForm_cas_uzatvorenia_date { display: inline-block; margin-bottom: 0 !important; }
+#ZadanieForm_cas_uzatvorenia_time { display: inline-block; margin-left: 15px; margin-bottom: 0 !important; }
+
+/*----------------------------
+    Login
+-----------------------------*/
+
+form.form-signin { width: 300px; margin: 0 auto; display: block; padding-left: 40px; padding-right: 40px; padding-bottom: 40px; padding-top: 20px; border-radius: 3px; border: 1px solid #d7d7d7; margin-top: 100px; }
+form.form-signin button[type="submit"] { margin-top: 10px; }
+
 
 /*----------------------------
     SQL queries log
@@ -33,11 +55,11 @@
     background-image:-moz-linear-gradient(top, #373a3d, #313437);
     background-image:linear-gradient(top, #373a3d, #313437);
 
-    width: 640px;
+    width: 530px;
+    margin: 0 auto;
     padding:30px;
     border-radius:3px;
-
-    margin:200px auto 100px;
+    
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -95,7 +117,7 @@
     border-top:1px solid #3d4043;
     border-bottom:1px solid #2b2e31;
     padding:15px;
-    height: 52px;
+    height: 72px;
 
     position: relative;
 }

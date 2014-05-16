@@ -1,12 +1,19 @@
-{% set title = 'Vitaaaj ty Panko' %}
+{% set title = 'Prihlásenie - Odovzdaj.to' %}
 {% extends "layout.twig" %}
 
 
 {% block content %}
 
-<h1>Login</h1>
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Odovzdaj.to</a>
+        </div>
+    </div>
+</div>
 
-<form action="{{ path('login.process') }}" method="post">
+<form class="form-signin" action="{{ path('login.process') }}" role="form" method="post">
+    <h1>Prihlásenie</h1>
     {{ form_widget(form) }}
 </form>
 

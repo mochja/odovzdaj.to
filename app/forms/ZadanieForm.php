@@ -23,25 +23,29 @@ class ZadanieForm extends AbstractType
     {
         $builder
             ->add('nazov', 'text', array(
-                'label' => 'Nazov terminu'
+                'label' => 'Názov termínu',
+                'attr' => array('class' => 'form-control', 'placeholder' => 'Zadajte názov termínu')
             ))
             ->add('predmet_id', 'choice', array(
                 'choices' => $this->predmetyRepository->getList(),
-                'label' => 'Predmet'
+                'label' => 'Predmet',
+                'attr' => array('class' => 'form-control')
             ))
             ->add('cas_uzatvorenia', 'datetime', array(
                 'label' => 'Trva do',
-                'data' => new DateTime
+                'data' => new DateTime,
             ))
             ->add('trieda_id', 'choice', array(
                 'choices' => $this->triedyRepository->getList(),
-                'label' => 'Trieda'
+                'label' => 'Trieda',
+                'attr' => array('class' => 'form-control')
             ))
             ->add('po_uzavierke', 'checkbox', array(
-                'required' => false
+                'required' => false,
+                'label' => 'Možné odovzdať aj po termíne'
             ))
-            ->add('Vytvorit termin', 'button', array(
-                'attr' => array('class' => 'btn btn-primary')
+            ->add('Vytvoriť termín', 'submit', array(
+                'attr' => array('class' => 'btn btn-primary form-control')
             ));
     }
     

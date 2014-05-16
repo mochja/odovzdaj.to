@@ -1,8 +1,8 @@
 <html>
     <head>
         <title>{{ title }}</title>
-        <script src="{{ path('home') }}js/bootstrap.min.js"></script>
         <script src="{{ path('home') }}js/jquery-1.11.1.min.js"></script>
+        <script src="{{ path('home') }}js/bootstrap.min.js"></script>
         <script src="{{ path('home') }}js/moment.min.js"></script>
         <script src="{{ path('home') }}js/moment.sk.js"></script>
 
@@ -14,11 +14,13 @@
         <link href="{{ path('home') }}css/style.css" rel="stylesheet" />
     </head>
     <body>
-{% for type, messages in app.session.getFlashBag.all() %}
-    {% for message in messages %}
-        <button type="button" class="btn btn-{{ type }}">{{ message }}</button>
+
+    {% for type, messages in app.session.getFlashBag.all() %}
+        {% for message in messages %}
+        <p class="bg-{{ type }} text-center msg">{{ message }}</p>
+        {% endfor %}
     {% endfor %}
-{% endfor %}
+
 {% block content %}{% endblock %}
     
     <!--  
@@ -53,7 +55,7 @@
                 timestamps.each(function () {
                     $this = $(this);
                     // TODO: Ak uz skoncilo treba zmenit..
-                    var str = 'ostava ' + moment.duration( -moment().diff( moment($this.data('timestamp')) ) ).humanize();
+                    var str = moment.duration( -moment().diff( moment($this.data('timestamp')) ) ).humanize();
                     if ( $this.html() !== str ) {
                         $this.html( str );
                     }
