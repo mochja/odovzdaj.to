@@ -261,9 +261,15 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
 $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     error_reporting(0);
     $filelist = $app['zadania_service']->getFileList($id);
+    $notelist = $app['zadania_service']->getNotes($id);
     
-    $stream = function () use ($filelist, $id) {
+    $stream = function () use ($filelist, $notelist, $id) {
         $zip = new ZipStream('zadanie_'.$id.'.zip');
+        foreach ($notelist as $note)
+        {
+            if (empty($note['poznamka'])) continue;
+            $zip->add_file('zadanie_'.$id.'/'.$note['login'].'/poznamka.txt', $note['poznamka']);
+        }
         foreach ($filelist as $subor)
         {
             $zip->add_file_from_path('zadanie_'.$id.'/'.$subor['login'].'/'.$subor['nazov'], __DIR__.'/uploads/'.$subor['cesta']);

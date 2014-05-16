@@ -109,6 +109,13 @@ class ZadaniaService
                 . " LEFT JOIN pouzivatelia AS p ON o.pouzivatel_id = p.id"
                 . " WHERE o.zadanie_id = ?", array($zadanieId));
     }
+
+    public function getNotes($zadanieId)
+    {
+        return $this->db->fetchAll("SELECT o.poznamka, p.login FROM odovzdania AS o"
+            . " LEFT JOIN pouzivatelia AS p ON o.pouzivatel_id = p.id"
+            . " WHERE o.zadanie_id = ? AND o.poznamka IS NOT NULL AND p.login IS NOT NULL", array($zadanieId));
+    }
     
     public function save(Zadanie $zadanie)
     {
