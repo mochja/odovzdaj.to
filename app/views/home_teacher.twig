@@ -61,7 +61,7 @@
                     <td>{{ zadanie.odovzdanych }}</td>
                     <td>{{ zadanie.cas_uzatvorenia }}</td>
                     <td><span class="zadanie-koniec" data-timestamp="{{ zadanie.cas_uzatvorenia }}"></span></td>
-                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle">Vymazať</i></a></td>
+                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle"></i> Vymazať</a></td>
                     <td><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-download"></i> Stiahnúť</a></td>
                 </tr>
                 {% endfor %}
@@ -90,7 +90,7 @@
                     <td>{{ zadanie.rocnik|rome }}. {{ zadanie.kod }}</td>
                     <td>{{ zadanie.odovzdanych }}</td>
                     <td>{{ zadanie.cas_uzatvorenia }}</td>
-                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle">Vymazať</i></a></td>
+                    <td><a href="{{ path('zadanie.delete', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-remove-circle"></i> Vymazať</a></td>
                     <th><a href="{{ path('zadanie.zip', {id: zadanie.id }) }}"><i class="glyphicon glyphicon-download"></i> Stiahnúť</a></th>
                 </tr>
                 {% endfor %}

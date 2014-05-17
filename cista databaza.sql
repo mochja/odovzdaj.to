@@ -1,11 +1,30 @@
--- Adminer 4.0.3 MySQL dump
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 4135
+#
+# http://www.sequelpro.com/
+# http://code.google.com/p/sequel-pro/
+#
+# Host: 127.0.0.1 (MySQL 5.5.34)
+# Database: odovzdajtofinal
+# Generation Time: 2014-05-17 14:22:22 +0000
+# ************************************************************
 
-SET NAMES utf8;
-SET foreign_key_checks = 0;
-SET time_zone = '+02:00';
-SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table odovzdania
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `odovzdania`;
+
 CREATE TABLE `odovzdania` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `poznamka` text,
@@ -20,15 +39,19 @@ CREATE TABLE `odovzdania` (
   CONSTRAINT `odovzdania_ibfk_2` FOREIGN KEY (`pouzivatel_id`) REFERENCES `pouzivatelia` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `odovzdania` (`id`, `poznamka`, `zadanie_id`, `pouzivatel_id`, `cas_odovzdania`, `cas_upravenia`) VALUES
-(8,	'co ak tu dam <strong>asdf</strong>',	3,	3,	'2014-05-12 14:43:24',	'2014-05-12 14:45:46');
+
+
+# Dump of table pouzivatelia
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `pouzivatelia`;
+
 CREATE TABLE `pouzivatelia` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `trieda_id` int(11) DEFAULT NULL,
   `meno` varchar(32) NOT NULL,
   `login` varchar(16) NOT NULL,
+  `heslo` varchar(64) NOT NULL,
   `skratka` varchar(3) DEFAULT NULL,
   `role` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '1 - student; 2 - teacher; 10 - admin',
   PRIMARY KEY (`id`),
@@ -36,12 +59,24 @@ CREATE TABLE `pouzivatelia` (
   CONSTRAINT `pouzivatelia_ibfk_1` FOREIGN KEY (`trieda_id`) REFERENCES `triedy` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `pouzivatelia` (`id`, `trieda_id`, `meno`, `login`, `skratka`, `role`) VALUES
-(2,	1,	'asdf',	'asdf',	NULL,	2),
-(3,	1,	'Janko',	'jan',	NULL,	1),
-(4,	2,	'cuitel',	'',	NULL,	1);
+LOCK TABLES `pouzivatelia` WRITE;
+/*!40000 ALTER TABLE `pouzivatelia` DISABLE KEYS */;
+
+INSERT INTO `pouzivatelia` (`id`, `trieda_id`, `meno`, `login`, `heslo`, `skratka`, `role`)
+VALUES
+	(2,1,'Marek','marek','098f6bcd4621d373cade4e832627b4f6',NULL,2),
+	(3,4,'ziak','ziak','098f6bcd4621d373cade4e832627b4f6',NULL,1),
+	(4,2,'ucitel','ucitel','098f6bcd4621d373cade4e832627b4f6',NULL,2);
+
+/*!40000 ALTER TABLE `pouzivatelia` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table predmety
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `predmety`;
+
 CREATE TABLE `predmety` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `nazov` varchar(128) NOT NULL,
@@ -49,10 +84,26 @@ CREATE TABLE `predmety` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `predmety` (`id`, `nazov`, `skratka`) VALUES
-(1,	'asdf',	'PRO');
+LOCK TABLES `predmety` WRITE;
+/*!40000 ALTER TABLE `predmety` DISABLE KEYS */;
+
+INSERT INTO `predmety` (`id`, `nazov`, `skratka`)
+VALUES
+	(1,'Programovanie','PRO'),
+	(2,'Sieťové technológie','SIE'),
+	(3,'Serverové technológie','SXT'),
+	(4,'Elektrotechnické merania','ELM'),
+	(5,'Matematika','MAT');
+
+/*!40000 ALTER TABLE `predmety` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table subory
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `subory`;
+
 CREATE TABLE `subory` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `odovzdanie_id` int(10) unsigned NOT NULL,
@@ -66,10 +117,13 @@ CREATE TABLE `subory` (
   CONSTRAINT `subory_ibfk_2` FOREIGN KEY (`odovzdanie_id`) REFERENCES `odovzdania` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `subory` (`id`, `odovzdanie_id`, `nazov`, `cesta`, `velkost`, `cas_odovzdania`, `cas_upravenia`) VALUES
-(9,	8,	'256x256.jpg',	'a8864935_256x256.jpg',	23313,	'2014-05-12 14:43:24',	NULL);
+
+
+# Dump of table triedy
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `triedy`;
+
 CREATE TABLE `triedy` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `rocnik` tinyint(3) unsigned NOT NULL,
@@ -77,11 +131,27 @@ CREATE TABLE `triedy` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `triedy` (`id`, `rocnik`, `kod`) VALUES
-(1,	1,	'A'),
-(2,	1,	'SA');
+LOCK TABLES `triedy` WRITE;
+/*!40000 ALTER TABLE `triedy` DISABLE KEYS */;
+
+INSERT INTO `triedy` (`id`, `rocnik`, `kod`)
+VALUES
+	(1,3,'A'),
+	(2,3,'B'),
+	(3,3,'C'),
+	(4,3,'SA'),
+	(5,3,'SB'),
+	(6,3,'F');
+
+/*!40000 ALTER TABLE `triedy` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table zadania
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `zadania`;
+
 CREATE TABLE `zadania` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `nazov` varchar(32) NOT NULL,
@@ -100,16 +170,12 @@ CREATE TABLE `zadania` (
   CONSTRAINT `zadania_ibfk_3` FOREIGN KEY (`pouzivatel_id`) REFERENCES `pouzivatelia` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `zadania` (`id`, `nazov`, `trieda_id`, `pouzivatel_id`, `predmet_id`, `stav`, `cas_uzatvorenia`, `cas_vytvorenia`) VALUES
-(2,	'iPod shuffle',	1,	2,	1,	0,	'2014-05-13 05:47:07',	NULL),
-(3,	'Merania c.2',	2,	2,	1,	1,	'2014-05-18 02:15:56',	NULL),
-(6,	'gasdf',	1,	2,	1,	2,	'2014-05-14 04:25:00',	NULL),
-(7,	'som kikos',	1,	2,	1,	2,	'2014-05-14 04:25:00',	NULL),
-(8,	'gasdf',	1,	2,	1,	NULL,	'2014-05-14 04:27:00',	NULL),
-(9,	'2345245',	1,	2,	1,	NULL,	'2014-05-14 04:27:00',	NULL),
-(10,	'gadf',	1,	2,	1,	1,	'2014-05-14 04:31:00',	'2014-05-14 04:31:10'),
-(11,	'xcvnxcvbc',	1,	2,	1,	1,	'2014-05-14 04:31:00',	'2014-05-14 04:31:39'),
-(12,	'dfadf2123',	1,	2,	1,	1,	'2014-05-14 04:32:00',	'2014-05-14 04:32:30'),
-(13,	'12412',	1,	2,	1,	1,	'2014-05-14 04:32:00',	'2014-05-14 04:32:34');
 
--- 2014-05-14 05:15:14
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
