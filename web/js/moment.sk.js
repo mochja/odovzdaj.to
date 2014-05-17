@@ -1,3 +1,4 @@
+// ZABEZPECENIE SPRAVNEHO ZOBRAZOVANIA DATUMU
 // moment.js language configuration
 // language : slovak (sk)
 // author : Martin Minka : https://github.com/k2s

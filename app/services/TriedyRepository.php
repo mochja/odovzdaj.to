@@ -1,5 +1,7 @@
 <?php
 
+// Vybratie predmetov z databazy a sposob ich vypisu
+
 class PredmetyRepository
 {
 

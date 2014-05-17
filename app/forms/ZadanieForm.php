@@ -5,6 +5,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
+// Trieda pre vytvorenie formulara na odovzdanie
+
 class ZadanieForm extends AbstractType
 {
     /** @var TriedyRepository */

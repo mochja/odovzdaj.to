@@ -1,5 +1,7 @@
 <?php
 
+// Definovanie funkcii a tried pri prihlasovani uzivatela
+
 class User
 {
 

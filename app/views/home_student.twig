@@ -3,7 +3,6 @@
 
 {% block content %}
     
-    <!-- Static navbar -->
     <div class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -105,7 +104,7 @@
                     <td>{{ zadanie.cas_uzatvorenia }}</td>
                     <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
                     <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
-                    <td><!-- // TODO: hmmm?--></td>
+                    <td><!-- --></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -131,7 +130,6 @@
     $(function () {
         $('li.static-file > input').knob();
         $('li.static-file > span').on('click', function () {
-            // TODO: zmaznout file
         });
     });
 </script>

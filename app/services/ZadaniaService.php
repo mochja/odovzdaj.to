@@ -1,8 +1,5 @@
 <?php
 
-/**
- * TODO: rename to ZadanieRepository ;)
- */
 class ZadaniaService
 {
 

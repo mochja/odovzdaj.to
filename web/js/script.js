@@ -1,40 +1,39 @@
 $(function(){
     
+    // Modalne okno pri novych terminoch
     $('#myModal').modal();
 
     $('.upload').each(function () {
         var ul = $('ul', this);
-
+        
+        // Simulacia kliknutia na 'browse' - drop files
         $('.drop a', this).click(function(){
-            // Simulate a click on the file input button
-            // to show the file browser dialog
             $(this).parent().find('input').click();
         });
 
-        // Initialize the jQuery File Upload plugin
+        // jQuery File Upload plugin
         $(this).fileupload({
 
-            // This element will accept file drag/drop uploading
+            // Definovanie drop elementu
             dropZone: $('.drop', this),
 
-            // This function is called when a file is added to the queue;
-            // either via the browse button, or via drag/drop:
+            // Ked je subor nahraty
             add: function (e, data) {
 
                 var tpl = $('<li class="working"><input type="text" value="0" data-width="48" data-height="48"'+
                     ' data-fgColor="#0788a5" data-readOnly="1" data-bgColor="#3e4043" /><p></p><span></span></li>');
 
-                // Append the file name and file size
+                // Vypisat nazov suboru a velkost
                 tpl.find('p').text(data.files[0].name)
                              .append('<i>' + formatFileSize(data.files[0].size) + '</i>');
 
-                // Add the HTML to the UL element
+                // Vytvorit zoznam suborov
                 data.context = tpl.appendTo(ul);
 
-                // Initialize the knob plugin
+                // Knob plugin
                 tpl.find('input').knob();
 
-                // Listen for clicks on the cancel icon
+                // Kliknutia na zrusenie alebo zmazanie
                 tpl.find('span').click(function(){
 
                     if(tpl.hasClass('working')){
@@ -47,17 +46,15 @@ $(function(){
 
                 });
 
-                // Automatically upload the file once it is added to the queue
+                // Automaticky zaciatok nahravania
                 var jqXHR = data.submit();
             },
 
             progress: function(e, data){
 
-                // Calculate the completion percentage of the upload
+                // Priebeh nahravania v %
                 var progress = parseInt(data.loaded / data.total * 100, 10);
-
-                // Update the hidden input field and trigger a change
-                // so that the jQuery knob plugin knows to update the dial
+                
                 data.context.find('input').val(progress).change();
 
                 if(progress == 100){
@@ -66,19 +63,18 @@ $(function(){
             },
 
             fail:function(e, data){
-                // Something has gone wrong!
+                // Chyba
                 data.context.addClass('error');
             }
 
         });
     });
 
-    // Prevent the default action when a file is dropped on the window
     $(document).on('drop dragover', function (e) {
         e.preventDefault();
     });
 
-    // Helper function that formats the file sizes
+    // Formatovanie velkosti nahrateho suboru
     function formatFileSize(bytes, si) {
         var thresh = si ? 1000 : 1024;
         if(bytes < thresh) return bytes + ' B';

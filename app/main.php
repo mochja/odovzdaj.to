@@ -1,16 +1,25 @@
 <?php
 
+/**
+ * Zakladne nastavenia databazy a aplikacie
+ */
+
+// Nacitanie suboru s prihlasovanim do databazy
 require __DIR__.'/config.php';
 
+// Nastavenie spravnych datumov
 date_default_timezone_set('Europe/Bratislava');
 
+// Naciatanie Symfony a SPE
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use SPE\FilesizeExtensionBundle\Twig\FilesizeExtension;
 
 $app = new Silex\Application();
 
+// Debug mode
 $app['debug']= true;
 
+// Vytvorenie novych 'providerov'
 $app->register(new Silex\Provider\SessionServiceProvider());
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
 $app->register(new Silex\Provider\FormServiceProvider());
@@ -23,9 +32,11 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options' => $config['db'],
 ));
 
+// Nacitanie Doctrine pre pracu s databazou
 $logger = new Doctrine\DBAL\Logging\DebugStack();
 $app['db.config']->setSQLLogger($logger);
 
+// Nacitanie jednotlivych repository
 $app['repository.triedy'] = $app->share(function () use ($app) {
     return new TriedyRepository($app['db'], $app['session']);
 });
@@ -42,6 +53,7 @@ $app['zadania_service'] = $app->share(function () use ($app) {
     return new ZadaniaService($app['db'], $app['session']);
 });
 
+// Nacitanie twig-u
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
 ));
@@ -57,6 +69,8 @@ $app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($logg
     return $twig;
 }));
 
+// Kontrola, ci je alebo bol pouzivatel prihlaseny
+
 $checkUser = function ($request) use ($app) {
     $user = $app['session']->get('user');
     if ( empty($user) ) {
@@ -64,10 +78,11 @@ $checkUser = function ($request) use ($app) {
     }
 };
 
+// Vyber udajov pre zobrazenie podla role prihlaseneho
 $app->get('/', function () use ($app) {
     $user = $app['session']->get('user');
 
-    // Pre studenta zobrazime len shit
+    // Zobrazenie pre studenta
     if ($user['role'] == 1)
     {
         $zadania = $app['zadania_service']->getAll();
@@ -75,7 +90,9 @@ $app->get('/', function () use ($app) {
 
         return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
     }
-    else if ($user['role'] == 2) // pre ucitela viac shitov
+    
+    // Zobrazenie pre ucitela
+    else if ($user['role'] == 2)
     {
         $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), new Zadanie());
         
@@ -89,12 +106,14 @@ $app->get('/', function () use ($app) {
 })->before($checkUser)        
 ->bind('home');
 
+// Odhlasenie
 $app->get('/goodbye', function () use ($app) {
     $app['session']->clear();
-    $app['session']->getFlashBag()->add('success', 'Bol si uspesne odhlaseny.');
+    $app['session']->getFlashBag()->add('success', 'Bol si úspešne odhlásený.');
     return new RedirectResponse( $app['url_generator']->generate('login') );
 })->bind('logout');
 
+// Odovzdavanie suborov
 $app->post('/upload', function () use ($app) {
     $allowed = array('png', 'jpg', 'zip', 'doc', 'docx', 'pdf', 'ppt', 'pptx', 'c', 'cpp');
     $user = $app['session']->get('user');
@@ -156,6 +175,7 @@ $app->post('/upload', function () use ($app) {
 })->before($checkUser)
 ->bind('upload');
 
+// Odovzdanie celeho zadania
 $app->post('/odovzdaj', function () use ($app) {
     $zadanieId = $_POST['zadanie_id'];
     $user = $app['session']->get('user');
@@ -191,6 +211,10 @@ $app->post('/odovzdaj', function () use ($app) {
 })->before($checkUser)
 ->bind('odovzdaj');
 
+/**
+ * Prihlasovanie
+ */
+
 $app->get('/login', function () use ($app) {
     $user = new User();
     $form = $app['form.factory']->create(new LoginForm(), $user);
@@ -213,7 +237,7 @@ $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request
             $app['session']->getFlashBag()->add('success', 'Vitaj späť '.$app->escape($loggedUser['meno']).'.');
             return new RedirectResponse( $app['url_generator']->generate('home') ); 
         } else {
-            // login failed
+            // Prihlasenie zlyhalo
             $app['session']->getFlashBag()->add('error', 'Zadal si nespravne meno alebo heslo.');
         }
     }
@@ -257,6 +281,9 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
     return new RedirectResponse( $app['url_generator']->generate('home') );
 })->before($checkUser)->bind('zadanie.delete')->convert('id', function ($id) { return (int) $id; });
 
+/**
+ * Stahovanie zadani
+ */
 
 $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     error_reporting(0);

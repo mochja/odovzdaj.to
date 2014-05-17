@@ -1,5 +1,7 @@
 <?php
 
+// Vybratie tried z databazy a sposob vypisu
+
 class TriedyRepository
 {
 

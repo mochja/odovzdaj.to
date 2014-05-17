@@ -1,5 +1,7 @@
 <?php
 
+// Prihlasovanie uzivatela
+
 class IMAPLoginService
 {
     private $state;
@@ -16,7 +18,7 @@ class IMAPLoginService
     
     public function auth(User $loginUser)
     {
-        // $imap = imap_open("{localhost:143/imap/novalidate-cert}", $username, $password);
+        
         $imap = true;
         
         if (!$imap) {

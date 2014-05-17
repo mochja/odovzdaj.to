@@ -1,5 +1,7 @@
 <?php
 
+// Definovanie tried a funkcii pre odovzdavanie zadani
+
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 
