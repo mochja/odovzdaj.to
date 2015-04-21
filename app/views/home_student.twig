@@ -93,7 +93,6 @@
                     <th>Trval do</th>
                     <th>Súbory</th>
                     <th>Poznámky</th>
-                    <th>Po termíne</th>
                 </tr>
             </thead>
             <tbody>
@@ -104,7 +103,6 @@
                     <td>{{ zadanie.cas_uzatvorenia }}</td>
                     <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
                     <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
-                    <td><!-- --></td>
                 </tr>
                 {% endfor %}
             </tbody>

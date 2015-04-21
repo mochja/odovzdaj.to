@@ -28,7 +28,6 @@ class ZadaniaService
 
         $zadaniaIds = array_map(function ($v){ return (int)$v['id']; }, $zadania);
     
-        // TODO: Mozeme dat k predchodziemu ako JOIN
         $stmt = $this->db->executeQuery("SELECT id, zadanie_id, poznamka, cas_odovzdania, cas_upravenia FROM odovzdania WHERE zadanie_id IN (?)", 
             array($zadaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
         $odovzdania = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -52,10 +51,10 @@ class ZadaniaService
                             $zadanie['subory'][] = $s;
                         }
                     }
-                } // xDDD
+                }
             }
         }
-        unset($zadanie); // !!!!
+        unset($zadanie);
         return $zadania;
     }
 
