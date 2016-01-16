@@ -1,6 +1,6 @@
 <?php
 
-// Definovanie funkcii a tried pri prihlasovani uzivatela
+namespace App\Entity;
 
 class User
 {

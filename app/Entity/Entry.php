@@ -1,11 +1,11 @@
 <?php
 
-// Definovanie tried a funkcii pre odovzdavanie zadani
+namespace App\Entity;
 
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Zadanie
+class Entry
 {
     protected $id;
     protected $nazov;

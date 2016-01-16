@@ -18,15 +18,8 @@
         "symfony/security-csrf": "~2.8"
     },
     "autoload": {
-        "files": [
-            "app/entities/Zadanie.php",
-            "app/entities/User.php",
-            "app/forms/ZadanieForm.php",
-            "app/forms/LoginForm.php",
-            "app/services/TriedyRepository.php",
-            "app/services/PredmetyRepository.php",
-            "app/services/IMAPLoginService.php",
-            "app/services/ZadaniaService.php"
-        ]
+        "psr-4": {
+            "App\\": "app/"
+        }
     }
 }

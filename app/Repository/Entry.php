@@ -1,12 +1,19 @@
 <?php
 
-class ZadaniaService
+namespace App\Repository;
+
+use App\Entity;
+use Doctrine;
+use PDO;
+
+class Entry
 {
     /** @var Doctrine\DBAL\Connection */
     private $db;
     private $user;
 
-    public function __construct(\Doctrine\DBAL\Connection $db, $session)
+
+    public function __construct(Doctrine\DBAL\Connection $db, $session)
     {
         $this->db = $db;
         $this->user = $session->get('user');
@@ -28,7 +35,7 @@ class ZadaniaService
         $zadaniaIds = array_map(function ($v) { return (int)$v['id']; }, $zadania);
     
         $stmt = $this->db->executeQuery("SELECT id, zadanie_id, poznamka, cas_odovzdania, cas_upravenia FROM odovzdania WHERE zadanie_id IN (?)",
-            array($zadaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+            [$zadaniaIds], [Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
         $odovzdania = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $odovzdaniaIds = array_map(function ($v) { return (int)$v['id']; }, $odovzdania);
     
@@ -36,7 +43,7 @@ class ZadaniaService
             $subory = array();
         } else {
             $stmt = $this->db->executeQuery("SELECT id, odovzdanie_id, nazov, velkost, cesta, cas_odovzdania, cas_upravenia FROM subory WHERE odovzdanie_id IN (?)",
-                array($odovzdaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+                [$odovzdaniaIds], [Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
             $subory = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     
@@ -76,7 +83,7 @@ class ZadaniaService
 
         // pocet ludi v triede
         $stmt = $this->db->executeQuery("SELECT trieda_id, COUNT(*) AS pocet_ziakov FROM pouzivatelia WHERE trieda_id IN(?) GROUP BY trieda_id",
-            array($triedyIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+            array($triedyIds), [Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
         $triedy = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $triedy = array_combine(array_map(function ($v) { return (int)$v['trieda_id']; }, $triedy), $triedy);
 
@@ -84,7 +91,8 @@ class ZadaniaService
         $stmt = $this->db->executeQuery("SELECT zadanie_id, trieda_id, COUNT(*) AS pocet_ziakov FROM odovzdania AS o
             LEFT JOIN zadania AS z ON o.zadanie_id = z.id
             WHERE z.trieda_id IN(?) AND o.zadanie_id IN(?) GROUP BY o.zadanie_id",
-            array($triedyIds, $zadaniaIds), array(\Doctrine\DBAL\Connection::PARAM_INT_ARRAY, \Doctrine\DBAL\Connection::PARAM_INT_ARRAY));
+            array($triedyIds, $zadaniaIds),
+            [Doctrine\DBAL\Connection::PARAM_INT_ARRAY, \Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
         $odovzdania = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $odovzdania = array_combine(array_map(function ($v) { return (int)$v['zadanie_id']; }, $odovzdania), $odovzdania);
 
@@ -111,7 +119,7 @@ class ZadaniaService
             . " WHERE o.zadanie_id = ? AND o.poznamka IS NOT NULL AND p.login IS NOT NULL", array($zadanieId));
     }
     
-    public function save(Zadanie $zadanie)
+    public function save(Entity\Entry $zadanie)
     {
         $zadanieData = array(
             'nazov' => $zadanie->getNazov(),

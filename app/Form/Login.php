@@ -1,12 +1,14 @@
 <?php
 
+namespace App\Form;
+
 use Symfony\Component\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * Definition of Login Form
  */
-class LoginForm extends Form\AbstractType
+class Login extends Form\AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

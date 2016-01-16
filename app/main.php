@@ -1,77 +1,18 @@
 <?php
 
-/**
- * Zakladne nastavenia databazy a aplikacie
- */
+use App\Form;
+use App\Entity;
+use App\Services;
+use App\Repository;
+use App\Entity\User;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
-// Nacitanie suboru s prihlasovanim do databazy
-$config = require_once __DIR__ . '/config.php';
-
-// Nastavenie spravnych datumov
 date_default_timezone_set('Europe/Bratislava');
 
-// Naciatanie Symfony a SPE
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use SPE\FilesizeExtensionBundle\Twig\FilesizeExtension;
-
-$app = new Silex\Application();
-
-// Debug mode
-$app['debug']= true;
-
-// Vytvorenie novych 'providerov'
-$app->register(new Silex\Provider\SessionServiceProvider());
-$app->register(new Silex\Provider\UrlGeneratorServiceProvider());
-$app->register(new Silex\Provider\FormServiceProvider());
-
-$app->register(new Silex\Provider\TranslationServiceProvider(), array(
-    'locale_fallbacks' => array('en'),
-));
-
-$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
-    'db.options' => $config['db'],
-));
-
-// Nacitanie Doctrine pre pracu s databazou
-$logger = new Doctrine\DBAL\Logging\DebugStack();
-$app['db.config']->setSQLLogger($logger);
-
-// Nacitanie jednotlivych repository
-$app['repository.triedy'] = $app->share(function () use ($app) {
-    return new TriedyRepository($app['db'], $app['session']);
-});
-
-$app['repository.predmety'] = $app->share(function () use ($app) {
-    return new PredmetyRepository($app['db'], $app['session']);
-});
-
-$app['login_service'] = $app->share(function () use ($app) {
-    return new IMAPLoginService($app['db']);
-});
-
-$app['zadania_service'] = $app->share(function () use ($app) {
-    return new ZadaniaService($app['db'], $app['session']);
-});
-
-// Nacitanie twig-u
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/views',
-));
-
-$app['twig'] = $app->share($app->extend('twig', function ($twig, $app) use ($logger) {
-    $twig->addGlobal('logger', $logger);
-    $twig->addGlobal('user', $app['session']->get('user'));
-
-    $twig->addExtension(new FilesizeExtension());
-    $twig->addFilter('rome', new Twig_SimpleFilter('rome', function ($val) {
-        return $val < 4 ? str_repeat('I', $val) : 'IV';
-    }));
-    return $twig;
-}));
+$app = require_once __DIR__ . '/app.php';
 
 // Kontrola, ci je alebo bol pouzivatel prihlaseny
-
-$checkUser = function ($request) use ($app) {
+$checkUser = function () use ($app) {
     $user = $app['session']->get('user');
     if (empty($user)) {
         return new RedirectResponse($app['url_generator']->generate('login'));
@@ -84,23 +25,24 @@ $app->get('/', function () use ($app) {
 
     // Zobrazenie pre studenta
     if ($user['role'] == 1) {
-        $zadania = $app['zadania_service']->getAll();
-        $ukonceneZadania = $app['zadania_service']->getAll(true);
+        $zadania         = $app[Entity\Entry::class]->getAll();
+        $ukonceneZadania = $app[Entity\Entry::class]->getAll(true);
 
         return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
     }
-    
     // Zobrazenie pre ucitela
     elseif ($user['role'] == 2) {
-        $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), new Zadanie());
+        $form = $app['form.factory']->create(Form\Entry::class, new Entity\Entry());
         
         return $app['twig']->render('home_teacher.twig', array(
-            'zadaniaZatvorene' => $app['zadania_service']->getAllForTeacher(true),
-            'zadania' => $app['zadania_service']->getAllForTeacher(),
-            'form' => $form->createView()
+            'zadaniaZatvorene' => $app[Repository\Entry::class]->getAllForTeacher(true),
+            'zadania'          => $app[Repository\Entry::class]->getAllForTeacher(),
+            'form'             => $form->createView()
         ));
     }
-    
+
+    return new Symfony\Component\HttpFoundation\Response('Bad Request',
+        Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST);
 })->before($checkUser)
 ->bind('home');
 
@@ -215,7 +157,7 @@ $app->post('/odovzdaj', function () use ($app) {
 
 $app->get('/login', function () use ($app) {
     $user = new User();
-    $form = $app['form.factory']->create(LoginForm::class, $user);
+    $form = $app['form.factory']->create(Form\Login::class, $user);
     
     return $app['twig']->render('login.twig', array('form' => $form->createView()));
 })->bind('login');
@@ -224,11 +166,11 @@ $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request
 
     $user = new User();
     /** @var \Symfony\Component\Form\Form $form */
-    $form = $app['form.factory']->create(LoginForm::class, $user);
+    $form = $app['form.factory']->create(Form\Login::class, $user);
     
     $form->handleRequest($request);
     if ($form->isValid()) {
-        $loggedUser = $app['login_service']->auth($user);
+        $loggedUser = $app[Services\LoginService::class]->auth($user);
         if ($loggedUser !== false) {
             $app['session']->set('user', $loggedUser);
             $app['session']->getFlashBag()->add('success', 'Vitaj späť '.$app->escape($loggedUser['meno']).'.');
@@ -253,17 +195,19 @@ $app->post('/zadanie/new', function (Symfony\Component\HttpFoundation\Request $r
     if ($user['role'] != 2) {
         throw new Exception('Permission denied');
     }
-    
-    $zadanie = new Zadanie();
+
+    $zadanie = new Entity\Entry();
     $zadanie->setPouzivatelId($user['id']);
-    $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), $zadanie);
-    
-    $form->bind($request);
+
+    /** @var Symfony\Component\Form\Form $form */
+    $form = $app['form.factory']->create(Form\Entry::class, $zadanie);
+
+    $form->handleRequest($request);
     if ($form->isValid()) {
-        $app['zadania_service']->save($zadanie);
+        $app[Repository\Entry::class]->save($zadanie);
         $app['session']->getFlashBag()->add('success', 'Zadanie bolo pridane.');
     }
-    
+
     return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.new');
 
@@ -272,8 +216,8 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
     if ($user['role'] != 2) {
         throw new Exception('Permission denied');
     }
-    
-    $app['zadania_service']->delete($id);
+
+    $app[Repository\Entry::class]->delete($id);
     return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.delete')->convert('id', function ($id) { return (int) $id; });
 
@@ -283,8 +227,8 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
 
 $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     error_reporting(0);
-    $filelist = $app['zadania_service']->getFileList($id);
-    $notelist = $app['zadania_service']->getNotes($id);
+    $filelist = $app[Repository\Entry::class]->getFileList($id);
+    $notelist = $app[Repository\Entry::class]->getNotes($id);
     
     $stream = function () use ($filelist, $notelist, $id) {
         $zip = new ZipStream('zadanie_'.$id.'.zip');
