@@ -14,7 +14,8 @@
         "symfony/config": "~3.0",
         "symfony/translation": "~3.0",
         "symfony/locale": "~2.8",
-        "maennchen/zipstream-php": "~0.3"
+        "maennchen/zipstream-php": "~0.3",
+        "symfony/security-csrf": "~2.8"
     },
     "autoload": {
         "files": [

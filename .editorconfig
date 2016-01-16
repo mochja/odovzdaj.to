@@ -24,4 +24,4 @@ indent_size = 2
 # Matches the exact files either package.json
 [{composer.json}]
 indent_style = space
-indent_size = 2
+indent_size = 4

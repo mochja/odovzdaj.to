@@ -5,7 +5,7 @@
  */
 
 // Nacitanie suboru s prihlasovanim do databazy
-require __DIR__.'/config.php';
+$config = require_once __DIR__ . '/config.php';
 
 // Nastavenie spravnych datumov
 date_default_timezone_set('Europe/Bratislava');
