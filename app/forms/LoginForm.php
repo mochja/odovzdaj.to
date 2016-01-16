@@ -1,28 +1,27 @@
 <?php
 
-use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Constraints as Assert;
 
-// Trieda pre vytvorenie prihlasovacieho formulara
-
-class LoginForm extends AbstractType
+/**
+ * Definition of Login Form
+ */
+class LoginForm extends Form\AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('login', 'text', array(
+            ->add('login', Form\Extension\Core\Type\TextType::class, [
                 'label' => 'Meno',
                 'attr' => array('class' => 'form-control', 'placeholder' => 'Zadajte meno')
-            ))
-            ->add('password', 'password', array(
+            ])
+            ->add('password', Form\Extension\Core\Type\PasswordType::class, [
                 'label' => 'Heslo',
                 'attr' => array('class' => 'form-control')
-            ))
-            ->add('Prihlásiť', 'submit', array(
+            ])
+            ->add('Prihlásiť', Form\Extension\Core\Type\SubmitType::class, [
                 'attr' => array('class' => 'btn btn-lg btn-primary form-control')
-            ));
+            ]);
     }
 
     public function getName()

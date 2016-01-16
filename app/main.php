@@ -215,7 +215,7 @@ $app->post('/odovzdaj', function () use ($app) {
 
 $app->get('/login', function () use ($app) {
     $user = new User();
-    $form = $app['form.factory']->create(new LoginForm(), $user);
+    $form = $app['form.factory']->create(LoginForm::class, $user);
     
     return $app['twig']->render('login.twig', array('form' => $form->createView()));
 })->bind('login');
@@ -223,9 +223,10 @@ $app->get('/login', function () use ($app) {
 $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request) use ($app) {
 
     $user = new User();
-    $form = $app['form.factory']->create(new LoginForm(), $user);
+    /** @var \Symfony\Component\Form\Form $form */
+    $form = $app['form.factory']->create(LoginForm::class, $user);
     
-    $form->bind($request);
+    $form->handleRequest($request);
     if ($form->isValid()) {
         $loggedUser = $app['login_service']->auth($user);
         if ($loggedUser !== false) {
