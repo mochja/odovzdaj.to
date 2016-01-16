@@ -251,3 +251,28 @@ $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     
     return $app->stream($stream, 200, array('Content-Type' => 'application/zip'));
 })->before($checkUser)->bind('zadanie.zip')->convert('id', function ($id) { return (int) $id; });
+
+$app->get('/component/student-ended-terms',
+    function (Silex\Application $app, Symfony\Component\HttpFoundation\Request $request) {
+
+        /** @var Repository\Entry $entryRepository */
+        $entryRepository = $app[Repository\Entry::class];
+
+        $start = $request->get('start');
+        $step  = -50;
+
+        if ($start < 0) {
+            $start = abs($start);
+        } else {
+            $step = abs($step);
+        }
+
+        $from = $start + $step;
+
+        return $app['twig']->render('components/student_ended_terms.twig', [
+            'from'   => $from,
+            'to'     => $from + abs($step),
+            'target' => 'student-ended-terms',
+            'terms'  => $entryRepository->getAll(true)
+        ]);
+    })->before($checkUser);

@@ -13,9 +13,9 @@ insert_final_newline = true
 [*.{php}]
 charset = utf-8
 indent_style = space
-indent_size = 2
+indent_size = 4
 
-# Indentation override for all JS under lib directory
+# Indentation override for all JS under web directory
 [web/**.js]
 charset = utf-8
 indent_style = space

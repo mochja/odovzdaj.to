@@ -1,0 +1,24 @@
+{% include 'components/pager.twig' %}
+
+<table class="table table-bordered table-hover">
+    <thead>
+    <tr>
+        <th>Názov termínu</th>
+        <th>Predmet</th>
+        <th>Trval do</th>
+        <th>Súbory</th>
+        <th>Poznámky</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for zadanie in terms %}
+        <tr>
+            <td>{{ zadanie.nazov }}</td>
+            <td>{{ zadanie.predmet }}</td>
+            <td>{{ zadanie.cas_uzatvorenia }}</td>
+            <td>{% for subor in zadanie.subory %}{{ subor.nazov }}, {% endfor %}</td>
+            <td>{% if zadanie.odovzdanie is defined %}{{ zadanie.odovzdanie.poznamka }}{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

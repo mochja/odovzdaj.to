@@ -67,7 +67,11 @@
             updateTime();
             setInterval( updateTime, 1000 );
         });
+        (function (u) {
+            u.baseUrl = "{{ path('home')|e('js') }}";
+        })(window.UploadIT = window.UploadIT || {});
     </script>
+    <script src="{{ path('home') }}js/pager.js"></script>
     {% block script %}{% endblock %}
     </body>
 </html>
