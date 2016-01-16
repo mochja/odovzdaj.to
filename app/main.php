@@ -6,14 +6,19 @@ use App\Services;
 use App\Repository;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 date_default_timezone_set('Europe/Bratislava');
 
 $app = require_once __DIR__ . '/app.php';
 
-// Kontrola, ci je alebo bol pouzivatel prihlaseny
+/**
+ * Middleware for secured views
+ * @return RedirectResponse|null null when user is logged in
+ */
 $checkUser = function () use ($app) {
     $user = $app['session']->get('user');
+
     if (empty($user)) {
         return new RedirectResponse($app['url_generator']->generate('login'));
     }
@@ -25,8 +30,8 @@ $app->get('/', function () use ($app) {
 
     // Zobrazenie pre studenta
     if ($user['role'] == 1) {
-        $zadania         = $app[Entity\Entry::class]->getAll();
-        $ukonceneZadania = $app[Entity\Entry::class]->getAll(true);
+        $zadania         = $app[Repository\Entry::class]->getAll();
+        $ukonceneZadania = $app[Repository\Entry::class]->getAll(true);
 
         return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
     }
@@ -41,8 +46,7 @@ $app->get('/', function () use ($app) {
         ));
     }
 
-    return new Symfony\Component\HttpFoundation\Response('Bad Request',
-        Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST);
+    return new Response('Bad Request', Response::HTTP_BAD_REQUEST);
 })->before($checkUser)
 ->bind('home');
 
@@ -231,15 +235,16 @@ $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     $notelist = $app[Repository\Entry::class]->getNotes($id);
     
     $stream = function () use ($filelist, $notelist, $id) {
-        $zip = new ZipStream('zadanie_'.$id.'.zip');
+        $zip = new ZipStream\ZipStream('zadanie_' . $id . '.zip');
         foreach ($notelist as $note) {
             if (empty($note['poznamka'])) {
                 continue;
             }
-            $zip->add_file('zadanie_'.$id.'/'.$note['login'].'/poznamka.txt', $note['poznamka']);
+            $zip->addFile('zadanie_' . $id . '/' . $note['login'] . '/poznamka.txt', $note['poznamka']);
         }
         foreach ($filelist as $subor) {
-            $zip->add_file_from_path('zadanie_'.$id.'/'.$subor['login'].'/'.$subor['nazov'], __DIR__.'/uploads/'.$subor['cesta']);
+            $zip->addFileFromPath('zadanie_' . $id . '/' . $subor['login'] . '/' . $subor['nazov'],
+                __DIR__ . '/uploads/' . $subor['cesta']);
         }
         $zip->finish();
     };
