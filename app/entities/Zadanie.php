@@ -15,73 +15,88 @@ class Zadanie
     protected $stav;
     protected $casUzatvorenia;
     
-    public function __construct() {
+    public function __construct()
+    {
         $this->stav = 1;
     }
     
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function getNazov() {
+    public function getNazov()
+    {
         return $this->nazov;
     }
 
-    public function getTriedaId() {
+    public function getTriedaId()
+    {
         return $this->triedaId;
     }
 
-    public function getPouzivatelId() {
+    public function getPouzivatelId()
+    {
         return $this->pouzivatelId;
     }
 
-    public function getPredmetId() {
+    public function getPredmetId()
+    {
         return $this->predmetId;
     }
 
-    public function getStav() {
+    public function getStav()
+    {
         return $this->stav;
     }
 
-    public function getCasUzatvorenia() {
+    public function getCasUzatvorenia()
+    {
         return $this->casUzatvorenia;
     }
 
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
-    public function setNazov($nazov) {
+    public function setNazov($nazov)
+    {
         $this->nazov = $nazov;
     }
 
-    public function setTriedaId($triedaId) {
+    public function setTriedaId($triedaId)
+    {
         $this->triedaId = $triedaId;
     }
 
-    public function setPouzivatelId($pouzivatelId) {
+    public function setPouzivatelId($pouzivatelId)
+    {
         $this->pouzivatelId = $pouzivatelId;
     }
 
-    public function setPredmetId($predmetId) {
+    public function setPredmetId($predmetId)
+    {
         $this->predmetId = $predmetId;
     }
 
-    public function setStav($stav) {
+    public function setStav($stav)
+    {
         $this->stav = $stav;
     }
     
     public function setPoUzavierke($stav)
     {
-        $this->stav = $stav === true ? 2 : 1; 
+        $this->stav = $stav === true ? 2 : 1;
     }
     
     public function getPoUzavierke()
     {
-        return $this->stav == 2; 
+        return $this->stav == 2;
     }
 
-    public function setCasUzatvorenia($casUzatvorenia) {
+    public function setCasUzatvorenia($casUzatvorenia)
+    {
         $this->casUzatvorenia = $casUzatvorenia;
     }
     

@@ -4,7 +4,6 @@
 
 class TriedyRepository
 {
-
     /** @var Doctrine\DBAL\Connection */
     private $db;
     private $user;
@@ -27,5 +26,4 @@ class TriedyRepository
         
         return $pair;
     }
-    
 }

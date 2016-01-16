@@ -58,13 +58,13 @@ $app->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path' => __DIR__.'/views',
 ));
 
-$app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($logger) {
+$app['twig'] = $app->share($app->extend('twig', function ($twig, $app) use ($logger) {
     $twig->addGlobal('logger', $logger);
     $twig->addGlobal('user', $app['session']->get('user'));
 
     $twig->addExtension(new FilesizeExtension());
-    $twig->addFilter('rome', new Twig_SimpleFilter('rome', function ($val) { 
-        return $val < 4 ? str_repeat('I', $val) : 'IV';        
+    $twig->addFilter('rome', new Twig_SimpleFilter('rome', function ($val) {
+        return $val < 4 ? str_repeat('I', $val) : 'IV';
     }));
     return $twig;
 }));
@@ -73,8 +73,8 @@ $app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($logg
 
 $checkUser = function ($request) use ($app) {
     $user = $app['session']->get('user');
-    if ( empty($user) ) {
-        return new RedirectResponse( $app['url_generator']->generate('login') );
+    if (empty($user)) {
+        return new RedirectResponse($app['url_generator']->generate('login'));
     }
 };
 
@@ -83,34 +83,32 @@ $app->get('/', function () use ($app) {
     $user = $app['session']->get('user');
 
     // Zobrazenie pre studenta
-    if ($user['role'] == 1)
-    {
+    if ($user['role'] == 1) {
         $zadania = $app['zadania_service']->getAll();
-        $ukonceneZadania = $app['zadania_service']->getAll(TRUE);
+        $ukonceneZadania = $app['zadania_service']->getAll(true);
 
         return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
     }
     
     // Zobrazenie pre ucitela
-    else if ($user['role'] == 2)
-    {
+    elseif ($user['role'] == 2) {
         $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), new Zadanie());
         
         return $app['twig']->render('home_teacher.twig', array(
-            'zadaniaZatvorene' => $app['zadania_service']->getAllForTeacher(TRUE),
-            'zadania' => $app['zadania_service']->getAllForTeacher(), 
+            'zadaniaZatvorene' => $app['zadania_service']->getAllForTeacher(true),
+            'zadania' => $app['zadania_service']->getAllForTeacher(),
             'form' => $form->createView()
         ));
     }
     
-})->before($checkUser)        
+})->before($checkUser)
 ->bind('home');
 
 // Odhlasenie
 $app->get('/goodbye', function () use ($app) {
     $app['session']->clear();
     $app['session']->getFlashBag()->add('success', 'Bol si úspešne odhlásený.');
-    return new RedirectResponse( $app['url_generator']->generate('login') );
+    return new RedirectResponse($app['url_generator']->generate('login'));
 })->bind('logout');
 
 // Odovzdavanie suborov
@@ -118,7 +116,7 @@ $app->post('/upload', function () use ($app) {
     $allowed = array('png', 'jpg', 'zip', 'doc', 'docx', 'pdf', 'ppt', 'pptx', 'c', 'cpp');
     $user = $app['session']->get('user');
 
-    if ( isset($_FILES['upl']) && $_FILES['upl']['error'] == 0 && isset($_POST['zadanie_id']) ) {
+    if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0 && isset($_POST['zadanie_id'])) {
         $extension = pathinfo($_FILES['upl']['name'], PATHINFO_EXTENSION);
         if (!in_array(strtolower($extension), $allowed)) {
             return $app->json(array('status' => 'error'), 500);
@@ -143,8 +141,8 @@ $app->post('/upload', function () use ($app) {
                 );
 
                 $app['db']->executeQuery("INSERT INTO odovzdania (pouzivatel_id, zadanie_id, cas_odovzdania) VALUES (?,?,?)", array_values($odovzdanie), array(
-                    PDO::PARAM_INT, 
-                    PDO::PARAM_INT, 
+                    PDO::PARAM_INT,
+                    PDO::PARAM_INT,
                     'datetime'
                 ));
 
@@ -195,8 +193,8 @@ $app->post('/odovzdaj', function () use ($app) {
         );
 
         $app['db']->executeQuery("INSERT INTO odovzdania (pouzivatel_id, zadanie_id, cas_odovzdania, poznamka) VALUES (?,?,?,?)", array_values($odovzdanie), array(
-            PDO::PARAM_INT, 
-            PDO::PARAM_INT, 
+            PDO::PARAM_INT,
+            PDO::PARAM_INT,
             'datetime',
             PDO::PARAM_STR
         ));
@@ -207,7 +205,7 @@ $app->post('/odovzdaj', function () use ($app) {
     }
 
     $app['session']->getFlashBag()->add('sucess', 'Tvoja odpoved bola zaznamenana.');
-    return new RedirectResponse( $app['url_generator']->generate('home') ); 
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)
 ->bind('odovzdaj');
 
@@ -228,14 +226,12 @@ $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request
     $form = $app['form.factory']->create(new LoginForm(), $user);
     
     $form->bind($request);
-    if ($form->isValid())
-    {
-        $loggedUser = $app['login_service']->auth( $user );
-        if ( $loggedUser !== FALSE )
-        {
+    if ($form->isValid()) {
+        $loggedUser = $app['login_service']->auth($user);
+        if ($loggedUser !== false) {
             $app['session']->set('user', $loggedUser);
             $app['session']->getFlashBag()->add('success', 'Vitaj späť '.$app->escape($loggedUser['meno']).'.');
-            return new RedirectResponse( $app['url_generator']->generate('home') ); 
+            return new RedirectResponse($app['url_generator']->generate('home'));
         } else {
             // Prihlasenie zlyhalo
             $app['session']->getFlashBag()->add('error', 'Zadal si nespravne meno alebo heslo.');
@@ -258,17 +254,16 @@ $app->post('/zadanie/new', function (Symfony\Component\HttpFoundation\Request $r
     }
     
     $zadanie = new Zadanie();
-    $zadanie->setPouzivatelId( $user['id'] );
+    $zadanie->setPouzivatelId($user['id']);
     $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), $zadanie);
     
     $form->bind($request);
-    if ($form->isValid())
-    {
-        $app['zadania_service']->save( $zadanie );
+    if ($form->isValid()) {
+        $app['zadania_service']->save($zadanie);
         $app['session']->getFlashBag()->add('success', 'Zadanie bolo pridane.');
     }
     
-    return new RedirectResponse( $app['url_generator']->generate('home') );
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.new');
 
 $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
@@ -278,7 +273,7 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
     }
     
     $app['zadania_service']->delete($id);
-    return new RedirectResponse( $app['url_generator']->generate('home') );
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.delete')->convert('id', function ($id) { return (int) $id; });
 
 /**
@@ -292,13 +287,13 @@ $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     
     $stream = function () use ($filelist, $notelist, $id) {
         $zip = new ZipStream('zadanie_'.$id.'.zip');
-        foreach ($notelist as $note)
-        {
-            if (empty($note['poznamka'])) continue;
+        foreach ($notelist as $note) {
+            if (empty($note['poznamka'])) {
+                continue;
+            }
             $zip->add_file('zadanie_'.$id.'/'.$note['login'].'/poznamka.txt', $note['poznamka']);
         }
-        foreach ($filelist as $subor)
-        {
+        foreach ($filelist as $subor) {
             $zip->add_file_from_path('zadanie_'.$id.'/'.$subor['login'].'/'.$subor['nazov'], __DIR__.'/uploads/'.$subor['cesta']);
         }
         $zip->finish();

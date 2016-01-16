@@ -9,7 +9,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LoginForm extends AbstractType
 {
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
