@@ -97,9 +97,6 @@
 
 {% block script %}
 <script src="{{ path('home') }}js/jquery.knob.js"></script>
-{% for zadanie in zadania %}
-    <script>$('#modal{{ zadanie.id }}').modal();</script>
-{% endfor %}
 <!-- jQuery File Upload Dependencies -->
 <script src="{{ path('home') }}js/jquery.ui.widget.js"></script>
 <script src="{{ path('home') }}js/jquery.iframe-transport.js"></script>
