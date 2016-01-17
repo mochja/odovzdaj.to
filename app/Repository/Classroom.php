@@ -1,15 +1,17 @@
 <?php
 
-// Vybratie tried z databazy a sposob vypisu
+namespace App\Repository;
 
-class TriedyRepository
+use Doctrine;
+
+class Classroom
 {
-
     /** @var Doctrine\DBAL\Connection */
     private $db;
     private $user;
 
-    public function __construct(\Doctrine\DBAL\Connection $db, $session)
+
+    public function __construct(Doctrine\DBAL\Connection $db, $session)
     {
         $this->db = $db;
         $this->user = $session->get('user');
@@ -27,5 +29,4 @@ class TriedyRepository
         
         return $pair;
     }
-    
 }

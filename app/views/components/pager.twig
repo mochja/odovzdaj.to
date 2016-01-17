@@ -1,0 +1,19 @@
+{% if total is defined and total > 0 %}
+<div class="row my-pagination">
+    <div class="col-xs-12 text-right" data-pag-target="{{ target }}" data-pag-start="{{ from|default(1) }}">
+
+        <strong>{{ from|default(1) }}–{{ to|default(total|default(0) > 50 ? 50 : total|default(0)) }}</strong> z
+        <strong>{{ total|default(0) }}</strong>
+
+        <button type="button" class="btn btn-default btn-pag-prev"
+                aria-label="Prev"{{ from|default(1) == 1 ? ' disabled' }}>
+            <span class="glyphicon glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+        </button>
+
+        <button type="button" class="btn btn-default btn-pag-next"
+                aria-label="Next"{{ total|default(1) == to|default(1) ? ' disabled' }}>
+            <span class="glyphicon glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+        </button>
+    </div>
+</div>
+{% endif %}

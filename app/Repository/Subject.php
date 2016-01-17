@@ -1,15 +1,17 @@
 <?php
 
-// Vybratie predmetov z databazy a sposob ich vypisu
+namespace App\Repository;
 
-class PredmetyRepository
+use Doctrine;
+
+class Subject
 {
-
     /** @var Doctrine\DBAL\Connection */
     private $db;
     private $user;
 
-    public function __construct(\Doctrine\DBAL\Connection $db, $session)
+
+    public function __construct(Doctrine\DBAL\Connection $db, $session)
     {
         $this->db = $db;
         $this->user = $session->get('user');
@@ -27,5 +29,4 @@ class PredmetyRepository
         
         return $pair;
     }
-    
 }

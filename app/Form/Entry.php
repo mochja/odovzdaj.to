@@ -1,58 +1,56 @@
 <?php
 
+namespace App\Form;
+
+use DateTime;
+use App\Repository;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
-// Trieda pre vytvorenie formulara na odovzdanie
-
-class ZadanieForm extends AbstractType
+class Entry extends AbstractType
 {
-    /** @var TriedyRepository */
+
+    /** @var Repository\Classroom */
     protected $triedyRepository;
-    
-    /** @var PredmetyRepository */
+
+    /** @var Repository\Subject */
     protected $predmetyRepository;
-    
-    public function __construct(TriedyRepository $triedyRepository, PredmetyRepository $predmetyRepository)
+
+
+    public function __construct(Repository\Classroom $triedyRepository, Repository\Subject $predmetyRepository)
     {
         $this->triedyRepository = $triedyRepository;
         $this->predmetyRepository = $predmetyRepository;
     }
-    
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('nazov', 'text', array(
+        $builder->add('nazov', Type\TextType::class, array(
                 'label' => 'Názov termínu',
                 'attr' => array('class' => 'form-control', 'placeholder' => 'Zadajte názov termínu')
-            ))
-            ->add('predmet_id', 'choice', array(
-                'choices' => $this->predmetyRepository->getList(),
+            ))->add('predmet_id', Type\ChoiceType::class, array(
+                'choices' => array_flip($this->predmetyRepository->getList()),
                 'label' => 'Predmet',
                 'attr' => array('class' => 'form-control')
-            ))
-            ->add('cas_uzatvorenia', 'datetime', array(
+            ))->add('cas_uzatvorenia', Type\DateTimeType::class, array(
                 'label' => 'Trva do',
                 'data' => new DateTime,
-            ))
-            ->add('trieda_id', 'choice', array(
-                'choices' => $this->triedyRepository->getList(),
+            ))->add('trieda_id', Type\ChoiceType::class, array(
+                'choices' => array_flip($this->triedyRepository->getList()),
                 'label' => 'Trieda',
                 'attr' => array('class' => 'form-control')
-            ))
-            ->add('po_uzavierke', 'checkbox', array(
+            ))->add('po_uzavierke', Type\CheckboxType::class, array(
                 'required' => false,
                 'label' => 'Možné odovzdať aj po termíne'
-            ))
-            ->add('Vytvoriť termín', 'submit', array(
+            ))->add('Vytvoriť termín', Type\SubmitType::class, array(
                 'attr' => array('class' => 'btn btn-primary form-control')
             ));
     }
     
     public function getName()
     {
-        return 'ZadanieForm';
+        return 'EntryForm';
     }
 }

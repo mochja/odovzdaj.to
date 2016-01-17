@@ -1,80 +1,26 @@
 <?php
 
-/**
- * Zakladne nastavenia databazy a aplikacie
- */
+use App\Form;
+use App\Entity;
+use App\Services;
+use App\Repository;
+use App\Entity\User;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
-// Nacitanie suboru s prihlasovanim do databazy
-require __DIR__.'/config.php';
-
-// Nastavenie spravnych datumov
 date_default_timezone_set('Europe/Bratislava');
 
-// Naciatanie Symfony a SPE
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use SPE\FilesizeExtensionBundle\Twig\FilesizeExtension;
+$app = require_once __DIR__ . '/app.php';
 
-$app = new Silex\Application();
-
-// Debug mode
-$app['debug']= true;
-
-// Vytvorenie novych 'providerov'
-$app->register(new Silex\Provider\SessionServiceProvider());
-$app->register(new Silex\Provider\UrlGeneratorServiceProvider());
-$app->register(new Silex\Provider\FormServiceProvider());
-
-$app->register(new Silex\Provider\TranslationServiceProvider(), array(
-    'locale_fallbacks' => array('en'),
-));
-
-$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
-    'db.options' => $config['db'],
-));
-
-// Nacitanie Doctrine pre pracu s databazou
-$logger = new Doctrine\DBAL\Logging\DebugStack();
-$app['db.config']->setSQLLogger($logger);
-
-// Nacitanie jednotlivych repository
-$app['repository.triedy'] = $app->share(function () use ($app) {
-    return new TriedyRepository($app['db'], $app['session']);
-});
-
-$app['repository.predmety'] = $app->share(function () use ($app) {
-    return new PredmetyRepository($app['db'], $app['session']);
-});
-
-$app['login_service'] = $app->share(function () use ($app) {
-    return new IMAPLoginService($app['db']);
-});
-
-$app['zadania_service'] = $app->share(function () use ($app) {
-    return new ZadaniaService($app['db'], $app['session']);
-});
-
-// Nacitanie twig-u
-$app->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__.'/views',
-));
-
-$app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($logger) {
-    $twig->addGlobal('logger', $logger);
-    $twig->addGlobal('user', $app['session']->get('user'));
-
-    $twig->addExtension(new FilesizeExtension());
-    $twig->addFilter('rome', new Twig_SimpleFilter('rome', function ($val) { 
-        return $val < 4 ? str_repeat('I', $val) : 'IV';        
-    }));
-    return $twig;
-}));
-
-// Kontrola, ci je alebo bol pouzivatel prihlaseny
-
-$checkUser = function ($request) use ($app) {
+/**
+ * Middleware for secured views
+ * @return RedirectResponse|null null when user is logged in
+ */
+$checkUser = function () use ($app) {
     $user = $app['session']->get('user');
-    if ( empty($user) ) {
-        return new RedirectResponse( $app['url_generator']->generate('login') );
+
+    if (empty($user)) {
+        return new RedirectResponse($app['url_generator']->generate('login'));
     }
 };
 
@@ -83,34 +29,33 @@ $app->get('/', function () use ($app) {
     $user = $app['session']->get('user');
 
     // Zobrazenie pre studenta
-    if ($user['role'] == 1)
-    {
-        $zadania = $app['zadania_service']->getAll();
-        $ukonceneZadania = $app['zadania_service']->getAll(TRUE);
+    if ($user['role'] == 1) {
+        $zadania         = $app[Repository\Entry::class]->getAll();
+        $ukonceneZadania = $app[Repository\Entry::class]->getAll(true);
+        $total           = $app[Repository\Entry::class]->getCount(true);
 
-        return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
+        return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania', 'total'));
     }
-    
     // Zobrazenie pre ucitela
-    else if ($user['role'] == 2)
-    {
-        $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), new Zadanie());
+    elseif ($user['role'] == 2) {
+        $form = $app['form.factory']->create(Form\Entry::class, new Entity\Entry());
         
         return $app['twig']->render('home_teacher.twig', array(
-            'zadaniaZatvorene' => $app['zadania_service']->getAllForTeacher(TRUE),
-            'zadania' => $app['zadania_service']->getAllForTeacher(), 
-            'form' => $form->createView()
+            'zadaniaZatvorene' => $app[Repository\Entry::class]->getAllForTeacher(true),
+            'zadania'          => $app[Repository\Entry::class]->getAllForTeacher(),
+            'form'             => $form->createView()
         ));
     }
-    
-})->before($checkUser)        
+
+    return new Response('Bad Request', Response::HTTP_BAD_REQUEST);
+})->before($checkUser)
 ->bind('home');
 
 // Odhlasenie
 $app->get('/goodbye', function () use ($app) {
     $app['session']->clear();
     $app['session']->getFlashBag()->add('success', 'Bol si úspešne odhlásený.');
-    return new RedirectResponse( $app['url_generator']->generate('login') );
+    return new RedirectResponse($app['url_generator']->generate('login'));
 })->bind('logout');
 
 // Odovzdavanie suborov
@@ -118,7 +63,7 @@ $app->post('/upload', function () use ($app) {
     $allowed = array('png', 'jpg', 'zip', 'doc', 'docx', 'pdf', 'ppt', 'pptx', 'c', 'cpp');
     $user = $app['session']->get('user');
 
-    if ( isset($_FILES['upl']) && $_FILES['upl']['error'] == 0 && isset($_POST['zadanie_id']) ) {
+    if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0 && isset($_POST['zadanie_id'])) {
         $extension = pathinfo($_FILES['upl']['name'], PATHINFO_EXTENSION);
         if (!in_array(strtolower($extension), $allowed)) {
             return $app->json(array('status' => 'error'), 500);
@@ -143,8 +88,8 @@ $app->post('/upload', function () use ($app) {
                 );
 
                 $app['db']->executeQuery("INSERT INTO odovzdania (pouzivatel_id, zadanie_id, cas_odovzdania) VALUES (?,?,?)", array_values($odovzdanie), array(
-                    PDO::PARAM_INT, 
-                    PDO::PARAM_INT, 
+                    PDO::PARAM_INT,
+                    PDO::PARAM_INT,
                     'datetime'
                 ));
 
@@ -195,8 +140,8 @@ $app->post('/odovzdaj', function () use ($app) {
         );
 
         $app['db']->executeQuery("INSERT INTO odovzdania (pouzivatel_id, zadanie_id, cas_odovzdania, poznamka) VALUES (?,?,?,?)", array_values($odovzdanie), array(
-            PDO::PARAM_INT, 
-            PDO::PARAM_INT, 
+            PDO::PARAM_INT,
+            PDO::PARAM_INT,
             'datetime',
             PDO::PARAM_STR
         ));
@@ -207,7 +152,7 @@ $app->post('/odovzdaj', function () use ($app) {
     }
 
     $app['session']->getFlashBag()->add('sucess', 'Tvoja odpoved bola zaznamenana.');
-    return new RedirectResponse( $app['url_generator']->generate('home') ); 
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)
 ->bind('odovzdaj');
 
@@ -217,7 +162,7 @@ $app->post('/odovzdaj', function () use ($app) {
 
 $app->get('/login', function () use ($app) {
     $user = new User();
-    $form = $app['form.factory']->create(new LoginForm(), $user);
+    $form = $app['form.factory']->create(Form\Login::class, $user);
     
     return $app['twig']->render('login.twig', array('form' => $form->createView()));
 })->bind('login');
@@ -225,17 +170,16 @@ $app->get('/login', function () use ($app) {
 $app->post('/login', function (Symfony\Component\HttpFoundation\Request $request) use ($app) {
 
     $user = new User();
-    $form = $app['form.factory']->create(new LoginForm(), $user);
+    /** @var \Symfony\Component\Form\Form $form */
+    $form = $app['form.factory']->create(Form\Login::class, $user);
     
-    $form->bind($request);
-    if ($form->isValid())
-    {
-        $loggedUser = $app['login_service']->auth( $user );
-        if ( $loggedUser !== FALSE )
-        {
+    $form->handleRequest($request);
+    if ($form->isValid()) {
+        $loggedUser = $app[Services\LoginService::class]->auth($user);
+        if ($loggedUser !== false) {
             $app['session']->set('user', $loggedUser);
             $app['session']->getFlashBag()->add('success', 'Vitaj späť '.$app->escape($loggedUser['meno']).'.');
-            return new RedirectResponse( $app['url_generator']->generate('home') ); 
+            return new RedirectResponse($app['url_generator']->generate('home'));
         } else {
             // Prihlasenie zlyhalo
             $app['session']->getFlashBag()->add('error', 'Zadal si nespravne meno alebo heslo.');
@@ -256,19 +200,20 @@ $app->post('/zadanie/new', function (Symfony\Component\HttpFoundation\Request $r
     if ($user['role'] != 2) {
         throw new Exception('Permission denied');
     }
-    
-    $zadanie = new Zadanie();
-    $zadanie->setPouzivatelId( $user['id'] );
-    $form = $app['form.factory']->create(new ZadanieForm($app['repository.triedy'], $app['repository.predmety']), $zadanie);
-    
-    $form->bind($request);
-    if ($form->isValid())
-    {
-        $app['zadania_service']->save( $zadanie );
+
+    $zadanie = new Entity\Entry();
+    $zadanie->setPouzivatelId($user['id']);
+
+    /** @var Symfony\Component\Form\Form $form */
+    $form = $app['form.factory']->create(Form\Entry::class, $zadanie);
+
+    $form->handleRequest($request);
+    if ($form->isValid()) {
+        $app[Repository\Entry::class]->save($zadanie);
         $app['session']->getFlashBag()->add('success', 'Zadanie bolo pridane.');
     }
-    
-    return new RedirectResponse( $app['url_generator']->generate('home') );
+
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.new');
 
 $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
@@ -276,9 +221,9 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
     if ($user['role'] != 2) {
         throw new Exception('Permission denied');
     }
-    
-    $app['zadania_service']->delete($id);
-    return new RedirectResponse( $app['url_generator']->generate('home') );
+
+    $app[Repository\Entry::class]->delete($id);
+    return new RedirectResponse($app['url_generator']->generate('home'));
 })->before($checkUser)->bind('zadanie.delete')->convert('id', function ($id) { return (int) $id; });
 
 /**
@@ -287,22 +232,51 @@ $app->get('/zadanie/{id}/delete', function (Silex\Application $app, $id) {
 
 $app->get('/zadanie/{id}/zip', function (Silex\Application $app, $id) {
     error_reporting(0);
-    $filelist = $app['zadania_service']->getFileList($id);
-    $notelist = $app['zadania_service']->getNotes($id);
+    $filelist = $app[Repository\Entry::class]->getFileList($id);
+    $notelist = $app[Repository\Entry::class]->getNotes($id);
     
     $stream = function () use ($filelist, $notelist, $id) {
-        $zip = new ZipStream('zadanie_'.$id.'.zip');
-        foreach ($notelist as $note)
-        {
-            if (empty($note['poznamka'])) continue;
-            $zip->add_file('zadanie_'.$id.'/'.$note['login'].'/poznamka.txt', $note['poznamka']);
+        $zip = new ZipStream\ZipStream('zadanie_' . $id . '.zip');
+        foreach ($notelist as $note) {
+            if (empty($note['poznamka'])) {
+                continue;
+            }
+            $zip->addFile('zadanie_' . $id . '/' . $note['login'] . '/poznamka.txt', $note['poznamka']);
         }
-        foreach ($filelist as $subor)
-        {
-            $zip->add_file_from_path('zadanie_'.$id.'/'.$subor['login'].'/'.$subor['nazov'], __DIR__.'/uploads/'.$subor['cesta']);
+        foreach ($filelist as $subor) {
+            $zip->addFileFromPath('zadanie_' . $id . '/' . $subor['login'] . '/' . $subor['nazov'],
+                __DIR__ . '/uploads/' . $subor['cesta']);
         }
         $zip->finish();
     };
     
     return $app->stream($stream, 200, array('Content-Type' => 'application/zip'));
 })->before($checkUser)->bind('zadanie.zip')->convert('id', function ($id) { return (int) $id; });
+
+$app->get('/component/student-ended-terms',
+    function (Silex\Application $app, Symfony\Component\HttpFoundation\Request $request) {
+
+        /** @var Repository\Entry $entryRepository */
+        $entryRepository = $app[Repository\Entry::class];
+
+        $start = $request->get('start');
+        $step  = -50;
+
+        if ($start < 0) {
+            $start = abs($start);
+        } else {
+            $step = abs($step);
+        }
+
+        $total = $entryRepository->getCount(true);
+        $from  = $start + $step;
+        $to    = min($total, $from + abs($step) - 1);
+
+        return $app['twig']->render('components/student_ended_terms.twig', [
+            'from'   => $from,
+            'to'     => $to,
+            'total'  => $total,
+            'target' => 'student-ended-terms',
+            'terms'  => $entryRepository->getFromOffset($from - 1, max(0, $to - $from + 1), true)
+        ]);
+    })->before($checkUser);

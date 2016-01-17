@@ -2,3 +2,4 @@
 /nbproject
 composer.phar
 app/config.php
+.idea/

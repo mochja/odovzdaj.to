@@ -24,7 +24,7 @@
 {% block content %}{% endblock %}
     
     {# poznamka: skryte vypisovanie sql queries
-    
+
     {% if logger.queries %}
     <table class="sql-log">
         <thead>
@@ -45,8 +45,8 @@
     {% endif %}
     
     #}
-    
-        <footer><small>© 2014 Odovzdaj.to ako ročníkový projekt pre <a href="http://www.spse-po.sk">SPŠE Prešov</a> vytvoril Marek Dlugoš</small></footer>
+
+    {#<footer><small>© 2014 Odovzdaj.to ako ročníkový projekt pre <a href="http://www.spse-po.sk">SPŠE Prešov</a> vytvoril Marek Dlugoš</small></footer>#}
     
     <script>
         moment.lang('sk');
@@ -67,7 +67,11 @@
             updateTime();
             setInterval( updateTime, 1000 );
         });
+        (function (u) {
+            u.baseUrl = "{{ path('home')|e('js') }}";
+        })(window.UploadIT = window.UploadIT || {});
     </script>
+    <script src="{{ path('home') }}js/pager.js"></script>
     {% block script %}{% endblock %}
     </body>
 </html>
