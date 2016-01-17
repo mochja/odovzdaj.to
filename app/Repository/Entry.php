@@ -19,26 +19,37 @@ class Entry
         $this->user = $session->get('user');
     }
 
-    public function getAll($uzatvorene = false)
+
+    public function getCount($uzatvorene = false): int
+    {
+        return (int)$this->db->fetchColumn("SELECT COUNT(z.id) FROM zadania AS z " . "LEFT JOIN predmety AS p ON z.predmet_id = p.id " . "WHERE z.trieda_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() " . ($uzatvorene ? '>' : '<=') . " z.cas_uzatvorenia ) ) ",
+            [
+                $this->user['trieda_id'],
+                $uzatvorene ? 0 : 2
+            ], 0, [PDO::PARAM_INT, PDO::PARAM_INT]);
+    }
+
+
+    public function getFromOffset($offset = 0, $count = 50, $uzatvorene = false)
     {
         $user = $this->user;
 
-        $zadania = $this->db->fetchAll("SELECT z.id, z.nazov, z.cas_uzatvorenia, p.skratka AS predmet FROM zadania AS z "
-                . "LEFT JOIN predmety AS p ON z.predmet_id = p.id "
-                . "WHERE z.trieda_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() ".($uzatvorene ? '>' : '<=')." z.cas_uzatvorenia ) ) "
-                . "ORDER BY z.cas_uzatvorenia DESC", array($user['trieda_id'], $uzatvorene ? 0 : 2));
+        $zadania = $this->db->fetchAll("SELECT z.id, z.nazov, z.cas_uzatvorenia, p.skratka AS predmet FROM zadania AS z " . "LEFT JOIN predmety AS p ON z.predmet_id = p.id " . "WHERE z.trieda_id = ? AND ( z.stav = ? OR ( z.stav = 1 AND NOW() " . ($uzatvorene ? '>' : '<=') . " z.cas_uzatvorenia ) ) " . "ORDER BY z.cas_uzatvorenia DESC LIMIT ?, ?",
+            [$user['trieda_id'], $uzatvorene ? 0 : 2, $offset, $count],
+            [PDO::PARAM_INT, PDO::PARAM_INT, PDO::PARAM_INT, PDO::PARAM_INT]);
 
         if (empty($zadania)) {
             return array();
         }
 
         $zadaniaIds = array_map(function ($v) { return (int)$v['id']; }, $zadania);
-    
+
         $stmt = $this->db->executeQuery("SELECT id, zadanie_id, poznamka, cas_odovzdania, cas_upravenia FROM odovzdania WHERE zadanie_id IN (?)",
             [$zadaniaIds], [Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
-        $odovzdania = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $odovzdania    = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $odovzdaniaIds = array_map(function ($v) { return (int)$v['id']; }, $odovzdania);
-    
+
         if (empty($odovzdania)) {
             $subory = array();
         } else {
@@ -46,7 +57,7 @@ class Entry
                 [$odovzdaniaIds], [Doctrine\DBAL\Connection::PARAM_INT_ARRAY]);
             $subory = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
-    
+
         foreach ($zadania as &$zadanie) {
             $zadanie['subory'] = array();
             foreach ($odovzdania as $o) {
@@ -61,7 +72,14 @@ class Entry
             }
         }
         unset($zadanie);
+
         return $zadania;
+    }
+
+
+    public function getAll($uzatvorene = false)
+    {
+        return $this->getFromOffset(0, 50, $uzatvorene);
     }
 
     public function getAllForTeacher($uzatvorene = false)

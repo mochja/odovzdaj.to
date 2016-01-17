@@ -32,8 +32,9 @@ $app->get('/', function () use ($app) {
     if ($user['role'] == 1) {
         $zadania         = $app[Repository\Entry::class]->getAll();
         $ukonceneZadania = $app[Repository\Entry::class]->getAll(true);
+        $total           = $app[Repository\Entry::class]->getCount(true);
 
-        return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania'));
+        return $app['twig']->render('home_student.twig', compact('zadania', 'ukonceneZadania', 'total'));
     }
     // Zobrazenie pre ucitela
     elseif ($user['role'] == 2) {
@@ -267,12 +268,15 @@ $app->get('/component/student-ended-terms',
             $step = abs($step);
         }
 
-        $from = $start + $step;
+        $total = $entryRepository->getCount(true);
+        $from  = $start + $step;
+        $to    = min($total, $from + abs($step) - 1);
 
         return $app['twig']->render('components/student_ended_terms.twig', [
             'from'   => $from,
-            'to'     => $from + abs($step),
+            'to'     => $to,
+            'total'  => $total,
             'target' => 'student-ended-terms',
-            'terms'  => $entryRepository->getAll(true)
+            'terms'  => $entryRepository->getFromOffset($from - 1, max(0, $to - $from + 1), true)
         ]);
     })->before($checkUser);
